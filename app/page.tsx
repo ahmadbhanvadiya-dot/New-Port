@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { ArrowDownRight, ArrowUpRight, Github, Linkedin, Menu, X, MoveUpRight, Music } from "lucide-react";
 import ScrollLuffy from "@/components/ScrollLuffy";
 import ScrollBackground from "@/components/ScrollBackground";
+import SoundDock from "@/components/SoundDock";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -274,9 +275,7 @@ export default function Home() {
       <ScrollBackground />
       <div className="scroll-progress" aria-hidden="true"><span /></div>
       <div className="ambient-cursor-glow" aria-hidden="true" />
-      <aside className="sound-dock" aria-label="Soundtrack player">
-        <iframe title="Play or pause in the pool on Spotify" src="https://open.spotify.com/embed/track/7bUyB6btwXllCHQhNBWZ2C?utm_source=generator&si=ce3b03d78e5d4d4d&theme=0" width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" />
-      </aside>
+      <SoundDock />
       <div className="cursor-ghost" aria-hidden="true" /><div className="cursor-word" aria-hidden="true">LOOK CLOSER <span>↗</span></div>
       <a className="skip-link" href="#main-content">Skip to content</a>
       <header className="site-header">

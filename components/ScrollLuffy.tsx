@@ -2,15 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
-/** A lightweight, scroll-position companion. It uses vector artwork rather than a heavy video. */
+/** Vertical scroll companion — Luffy runs upright along a right-side rail. */
 export default function ScrollLuffy() {
   const runnerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const settleRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     const runner = runnerRef.current;
     if (!runner) return;
-    let settleTimer: ReturnType<typeof setTimeout> | undefined;
 
     const update = () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
@@ -19,8 +19,8 @@ export default function ScrollLuffy() {
         const progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
         runner.style.top = `${progress * 100}%`;
         runner.classList.add("is-running");
-        if (settleTimer) clearTimeout(settleTimer);
-        settleTimer = setTimeout(() => runner.classList.remove("is-running"), 220);
+        if (settleRef.current) clearTimeout(settleRef.current);
+        settleRef.current = setTimeout(() => runner.classList.remove("is-running"), 200);
       });
     };
 
@@ -31,36 +31,109 @@ export default function ScrollLuffy() {
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      if (settleTimer) clearTimeout(settleTimer);
+      if (settleRef.current) clearTimeout(settleRef.current);
     };
   }, []);
 
   return (
-    <aside className="scroll-luffy-track" aria-label="Luffy scroll companion">
-      <span className="scroll-luffy-rail" aria-hidden="true" />
-      <span className="scroll-luffy-caption" aria-hidden="true">GRAND LINE</span>
-      <div className="scroll-luffy-runner" ref={runnerRef} title="Luffy runs along with your scroll">
-        <svg viewBox="0 0 88 64" role="img" aria-label="Stylized Luffy in a straw hat running"><g transform="translate(0 64) rotate(-90)">
-          <g className="luffy-shadow"><ellipse cx="32" cy="82" rx="19" ry="3.5" /></g>
-          <g className="luffy-back-arm"><path d="M25 35 Q13 40 10 51" fill="none" stroke="#e8b28a" strokeWidth="7" strokeLinecap="round"/><path d="M10 51 l-3 5" fill="none" stroke="#e8b28a" strokeWidth="6" strokeLinecap="round"/></g>
-          <g className="luffy-back-leg"><path d="M28 59 Q21 68 15 74" fill="none" stroke="#245b91" strokeWidth="9" strokeLinecap="round"/><path d="M15 74 l-5 4" fill="none" stroke="#9b5534" strokeWidth="6" strokeLinecap="round"/></g>
-          <g className="luffy-front-leg"><path d="M38 58 Q46 64 48 73" fill="none" stroke="#245b91" strokeWidth="9" strokeLinecap="round"/><path d="M48 73 l7 2" fill="none" stroke="#9b5534" strokeWidth="6" strokeLinecap="round"/></g>
-          <path d="M24 30 Q31 26 40 32 L43 55 Q33 62 22 54 Z" fill="#c93636" stroke="#8f2527" strokeWidth="1.4"/>
-          <path d="M25 34 L39 34 M24 39 L40 39" stroke="#f1c6a4" strokeWidth="1.4" opacity=".7"/>
-          <g className="luffy-front-arm"><path d="M40 36 Q51 38 52 48" fill="none" stroke="#e8b28a" strokeWidth="7" strokeLinecap="round"/><path d="M52 48 l4 3" fill="none" stroke="#e8b28a" strokeWidth="6" strokeLinecap="round"/></g>
-          <path d="M27 53 L38 53 L40 61 L25 61 Z" fill="#d9b34f"/>
-          <g className="luffy-head">
-            <ellipse cx="32" cy="23" rx="13" ry="14" fill="#e8b28a"/>
-            <path d="M19 24 Q15 11 26 8 L31 10 L37 7 Q46 12 45 23 L41 20 L37 16 L32 20 L27 15 L22 25 Z" fill="#171b22" stroke="#10151c" strokeWidth="1"/>
-            <path d="M24 24 Q28 21 31 24" fill="none" stroke="#25201d" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M36 24 Q39 21 41 24" fill="none" stroke="#25201d" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M29 29 Q33 31 37 28" fill="none" stroke="#9b5534" strokeWidth="1.4" strokeLinecap="round"/>
-            <path d="M10 15 Q13 7 23 7 Q35 3 45 8 Q51 10 54 15 Q34 12 10 19 Z" fill="#f0c84b" stroke="#a87c27" strokeWidth="1.3"/>
-            <path d="M14 16 Q31 11 50 16" fill="none" stroke="#c93636" strokeWidth="4.2"/>
-            <path d="M21 8 Q31 5 42 8" fill="none" stroke="#ffe38b" strokeWidth="1.5" strokeLinecap="round"/>
+    <aside className="luffy-track" aria-label="Luffy scroll companion">
+      {/* Rail line */}
+      <span className="luffy-rail" aria-hidden="true" />
+      {/* Caption */}
+      <span className="luffy-caption" aria-hidden="true">GRAND LINE</span>
+
+      {/* Runner character — upright figure */}
+      <div className="luffy-runner" ref={runnerRef} aria-label="Luffy running with the page scroll">
+        <svg
+          viewBox="0 0 56 92"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-hidden="true"
+          className="luffy-svg"
+        >
+          {/* ── SHADOW ── */}
+          <ellipse className="luffy-ground-shadow" cx="28" cy="89" rx="12" ry="2.5" fill="rgba(23,32,42,0.18)" />
+
+          {/* ── BACK LEG ── */}
+          <g className="luffy-leg-back">
+            {/* upper back leg */}
+            <path d="M24 58 Q18 65 16 73" stroke="#1a4a82" strokeWidth="6.5" strokeLinecap="round" />
+            {/* lower back leg */}
+            <path d="M16 73 Q14 79 13 83" stroke="#1a4a82" strokeWidth="6" strokeLinecap="round" />
+            {/* back shoe */}
+            <ellipse cx="12" cy="84" rx="5" ry="3" fill="#7a3c1e" />
           </g>
+
+          {/* ── BACK ARM ── */}
+          <g className="luffy-arm-back">
+            <path d="M22 42 Q13 48 10 57" stroke="#d4916a" strokeWidth="6" strokeLinecap="round" />
+            <ellipse cx="10" cy="59" rx="4" ry="3.5" fill="#d4916a" />
+          </g>
+
+          {/* ── SHORTS ── */}
+          <path d="M18 55 Q24 62 32 62 Q40 62 36 55 L34 44 Q28 48 22 44 Z" fill="#244b8a" />
+          {/* belt */}
+          <rect x="20" y="43" width="16" height="3.5" rx="1.5" fill="#8a6a3a" />
+
+          {/* ── TORSO / SHIRT ── */}
+          <path d="M21 28 Q28 24 35 28 L37 43 Q28 47 19 43 Z" fill="#c0392b" />
+          {/* shirt stripe */}
+          <path d="M22 33 L34 33" stroke="#f1a199" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+          <path d="M21 38 L35 38" stroke="#f1a199" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+
+          {/* ── FRONT ARM ── */}
+          <g className="luffy-arm-front">
+            <path d="M34 40 Q44 44 46 53" stroke="#d4916a" strokeWidth="6" strokeLinecap="round" />
+            <ellipse cx="46" cy="55" rx="4" ry="3.5" fill="#d4916a" />
+          </g>
+
+          {/* ── FRONT LEG ── */}
+          <g className="luffy-leg-front">
+            {/* upper */}
+            <path d="M32 59 Q37 65 40 73" stroke="#1e5ba8" strokeWidth="6.5" strokeLinecap="round" />
+            {/* lower */}
+            <path d="M40 73 Q42 79 43 83" stroke="#1e5ba8" strokeWidth="6" strokeLinecap="round" />
+            {/* front shoe */}
+            <ellipse cx="44" cy="84" rx="5" ry="3" fill="#9b5029" />
+          </g>
+
+          {/* ── NECK ── */}
+          <rect x="25" y="23" width="6" height="6" rx="3" fill="#d4916a" />
+
+          {/* ── HEAD ── */}
+          <g className="luffy-head">
+            {/* head base */}
+            <ellipse cx="28" cy="16" rx="13" ry="13.5" fill="#d9966e" />
+            {/* scar under left eye */}
+            <path d="M20 16 L22 18" stroke="#b52d32" strokeWidth="1.8" strokeLinecap="round" />
+            {/* left eye */}
+            <ellipse cx="22.5" cy="14" rx="2.8" ry="2.8" fill="#1a1208" />
+            <ellipse cx="23.1" cy="13.4" rx="0.9" ry="0.9" fill="white" />
+            {/* right eye */}
+            <ellipse cx="33.5" cy="14" rx="2.8" ry="2.8" fill="#1a1208" />
+            <ellipse cx="34.1" cy="13.4" rx="0.9" ry="0.9" fill="white" />
+            {/* smile */}
+            <path d="M22 19 Q28 24 34 19" stroke="#7a3414" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+            {/* teeth */}
+            <path d="M25 20 Q28 22.5 31 20" fill="white" />
+
+            {/* ── STRAW HAT ── */}
+            {/* brim */}
+            <ellipse cx="28" cy="6" rx="18" ry="4.5" fill="#e8c84f" stroke="#9a7520" strokeWidth="1.2" />
+            {/* crown */}
+            <path d="M14 6 Q16 -3 28 -4 Q40 -3 42 6 Z" fill="#e8c84f" stroke="#9a7520" strokeWidth="1.2" />
+            {/* highlight on brim */}
+            <ellipse cx="24" cy="4.5" rx="7" ry="1.5" fill="rgba(255,255,255,0.3)" />
+            {/* red band */}
+            <path d="M12 6.5 Q28 8.5 44 6.5" stroke="#b52d32" strokeWidth="3.2" strokeLinecap="round" />
           </g>
         </svg>
+
+        {/* Speed lines — only visible when running */}
+        <span className="luffy-speed-lines" aria-hidden="true">
+          <i /><i /><i />
+        </span>
       </div>
     </aside>
   );
