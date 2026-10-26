@@ -32,6 +32,8 @@ export default function ScrollBackground() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
     let isMounted = true;
 
@@ -186,18 +188,16 @@ export default function ScrollBackground() {
         renderCurrentFrame();
       }
 
-      // Apply 3D perspective tilt & micro-ambient translation to canvas container
+      // Apply subtle parallax translation only — NO 3D perspective/rotate/scale
+      // (those transforms cause the GPU to bilinear-resample the entire canvas texture,
+      // making everything look blurry/soft)
       if (containerRef.current) {
-        const tiltX = -mouseCurrentRef.current.y * 2.8; // deg
-        const tiltY = mouseCurrentRef.current.x * 3.2; // deg
-        const shiftX = mouseCurrentRef.current.x * 10; // px
-        const shiftY = mouseCurrentRef.current.y * 10; // px
+        const shiftX = mouseCurrentRef.current.x * 6; // px — gentle parallax
+        const shiftY = mouseCurrentRef.current.y * 6; // px
         const velocity = Math.min(1, Math.abs(frameDiff) * 0.05);
 
-        // Subtle dynamic breath based on time
-        const breath = Math.sin(now * 0.0012) * 1.5;
-
-        containerRef.current.style.transform = `perspective(1200px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) translate3d(${shiftX.toFixed(1)}px, ${(shiftY + breath).toFixed(1)}px, 0) scale(${1.025 + velocity * 0.012})`;
+        // Pure translate3d — stays on the GPU pixel grid, no resampling
+        containerRef.current.style.transform = `translate3d(${shiftX.toFixed(1)}px, ${shiftY.toFixed(1)}px, 0)`;
 
         // Ambient glow coordinates
         const glowX = ((mouseCurrentRef.current.x + 1) * 50).toFixed(1);
@@ -254,7 +254,6 @@ export default function ScrollBackground() {
       <canvas ref={canvasRef} className="scroll-bg-canvas" />
       <div className="scroll-bg-vignette" />
       <div className="scroll-bg-golden-aura" />
-      <div className="scroll-bg-grain" />
     </div>
   );
 }
