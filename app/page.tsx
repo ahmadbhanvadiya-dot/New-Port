@@ -5,6 +5,7 @@ import type { PointerEvent as ReactPointerEvent, MouseEvent as ReactMouseEvent }
 import dynamic from "next/dynamic";
 import { ArrowDownRight, ArrowUpRight, Github, Linkedin, Menu, X, MoveUpRight, Music } from "lucide-react";
 import ScrollLuffy from "@/components/ScrollLuffy";
+import ScrollBackground from "@/components/ScrollBackground";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -253,8 +254,24 @@ export default function Home() {
     if (row) { row.style.setProperty("--info-shift-x", "0px"); row.style.setProperty("--info-shift-y", "0px"); }
   };
 
+  const tiltPoster = (event: ReactMouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    event.currentTarget.style.setProperty("--poster-tilt-x", `${(0.5 - y) * 15}deg`);
+    event.currentTarget.style.setProperty("--poster-tilt-y", `${(x - 0.5) * 16}deg`);
+    event.currentTarget.style.setProperty("--poster-scale", `1.035`);
+  };
+
+  const resetPoster = (event: ReactMouseEvent<HTMLDivElement>) => {
+    event.currentTarget.style.setProperty("--poster-tilt-x", `0deg`);
+    event.currentTarget.style.setProperty("--poster-tilt-y", `0deg`);
+    event.currentTarget.style.setProperty("--poster-scale", `1`);
+  };
+
   return (
     <main ref={root} className={`site-shell signal-${signalMode}`} data-signal={signalMode} onPointerMove={moveSpotlight}>
+      <ScrollBackground />
       <div className="scroll-progress" aria-hidden="true"><span /></div>
       <div className="ambient-cursor-glow" aria-hidden="true" />
       <aside className="sound-dock" aria-label="Soundtrack player">
@@ -472,13 +489,20 @@ export default function Home() {
             onPointerCancel={() => { posterTouchStart.current = null; }}
           >
             <button className="poster-arrow poster-arrow-prev" type="button" aria-label="Previous skill poster" onClick={() => setLabPhase((phase) => (phase - 1 + posterSkills.length) % posterSkills.length)}>←</button>
-            <div className="poster-stage" key={activePoster.name}>
+            <div className="poster-stage" key={activePoster.name} onMouseMove={tiltPoster} onMouseLeave={resetPoster}>
               <img className="skill-wanted-poster" src={activePoster.src} alt={`${activePoster.name} skill wanted poster with its original berry bounty design`} draggable={false} />
             </div>
             <button className="poster-arrow poster-arrow-next" type="button" aria-label="Next skill poster" onClick={() => setLabPhase((phase) => (phase + 1) % posterSkills.length)}>→</button>
           </div>
           <div className="poster-carousel-footer">
-            <div><span className="poster-current-label">CURRENT BOUNTY FILE</span><h3>{activePoster.name}</h3><p>Swipe, drag, or use the arrows to browse the crew.</p></div>
+            <div>
+              <div className="poster-current-topline">
+                <span className="poster-current-label">CURRENT BOUNTY FILE</span>
+                <span className="poster-bounty-badge">{activePoster.bounty}</span>
+              </div>
+              <h3>{activePoster.name}</h3>
+              <p>Swipe, drag, or use the arrows to browse the crew.</p>
+            </div>
             <div className="poster-carousel-controls" aria-label="Choose a skill poster">
               {posterSkills.map((poster, index) => <button key={poster.name} type="button" className={`poster-dot ${index === labPhase ? "is-active" : ""}`} aria-label={`Show ${poster.name} poster`} aria-current={index === labPhase ? "true" : undefined} onClick={() => setLabPhase(index)}><span>{String(index + 1).padStart(2, "0")}</span></button>)}
             </div>
