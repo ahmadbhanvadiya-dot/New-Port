@@ -4,31 +4,30 @@ import { useState } from "react";
 import { Music, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function SoundDock() {
-  const [minimized, setMinimized] = useState(false);
+  const [minimized, setMinimized] = useState(true);
 
   return (
     <aside
-      className={`sound-dock-wrap ${minimized ? "sound-dock-minimized" : ""}`}
+      className={`sound-dock-wrap ${minimized ? "sound-dock-minimized" : "sound-dock-expanded"}`}
       aria-label="Soundtrack player"
     >
-      {/* Pill tab — always visible, toggles open/closed */}
       <button
         className="sound-dock-toggle"
         type="button"
         aria-label={minimized ? "Expand music player" : "Minimize music player"}
         aria-expanded={!minimized}
-        onClick={() => setMinimized((v) => !v)}
+        onClick={() => setMinimized((prev) => !prev)}
+        title={minimized ? "Expand soundtrack player" : "Minimize soundtrack player"}
       >
         <span className="sound-dock-toggle-icon">
-          <Music size={11} />
+          <Music size={13} />
         </span>
-        <span className="sound-dock-toggle-label">NOW PLAYING</span>
+        {!minimized && <span className="sound-dock-toggle-label">NOW PLAYING</span>}
         <span className="sound-dock-toggle-caret">
-          {minimized ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+          {minimized ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </span>
       </button>
 
-      {/* Collapsible player body */}
       <div className="sound-dock-body" aria-hidden={minimized}>
         <iframe
           title="Play or pause in the pool on Spotify"

@@ -103,7 +103,6 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [workFilter, setWorkFilter] = useState("All work");
   const [projectIndex, setProjectIndex] = useState(0);
-  const [lanePalette, setLanePalette] = useState(0);
   const [activeCrew, setActiveCrew] = useState("STRAW HAT PIRATES");
   const [chaosMode, setChaosMode] = useState(false);
   const [signalMode, setSignalMode] = useState(0);
@@ -270,6 +269,22 @@ export default function Home() {
     event.currentTarget.style.setProperty("--poster-scale", `1`);
   };
 
+  const handleContactMove = (event: ReactPointerEvent<HTMLElement>) => {
+    if (event.pointerType !== "mouse") return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    event.currentTarget.style.setProperty("--contact-shift-x", `${(x * 24).toFixed(1)}px`);
+    event.currentTarget.style.setProperty("--contact-shift-y", `${(y * 24).toFixed(1)}px`);
+    event.currentTarget.style.setProperty("--contact-rotate", `${(x * 12).toFixed(1)}deg`);
+  };
+
+  const handleContactLeave = (event: ReactPointerEvent<HTMLElement>) => {
+    event.currentTarget.style.setProperty("--contact-shift-x", `0px`);
+    event.currentTarget.style.setProperty("--contact-shift-y", `0px`);
+    event.currentTarget.style.setProperty("--contact-rotate", `0deg`);
+  };
+
   return (
     <main ref={root} className={`site-shell signal-${signalMode}`} data-signal={signalMode} onPointerMove={moveSpotlight}>
       <ScrollBackground />
@@ -339,24 +354,29 @@ export default function Home() {
       </section>
 
 
-      <section className={`ticker lane-palette-${lanePalette} ${chaosMode ? "ticker-chaos" : ""}`} aria-label="Ideas in motion">
+      <section className={`ticker ${chaosMode ? "ticker-chaos" : ""}`} aria-label="Ideas in motion">
         <div className="marquee-track">
           {[0, 1].map((set) => (
             <div className="ticker-set" key={set} aria-hidden={set === 1 ? "true" : undefined}>
-              <span className="ticker-item"><small>01</small> CHASE THE DREAM <b>✳</b></span>
-              <span className="ticker-item ticker-item-outline"><small>02</small> SAIL BEYOND THE MAP <b>✳</b></span>
-              <span className="ticker-item"><small>03</small> STAY HUMBLE, NAKAMA <b>☻</b></span>
-              <span className="ticker-item ticker-item-outline"><small>04</small> FIND YOUR ALL BLUE <b>✳</b></span>
-              <span className="ticker-item ticker-item-sticker">JUST A HUMAN WITH A KEYBOARD & A DREAM <b>↗</b></span>
+              <span className="ticker-item ticker-item-1"><small>01</small> CHASE THE DREAM <b>✳</b></span>
+              <span className="ticker-item ticker-item-outline ticker-item-2"><small>02</small> SAIL BEYOND THE MAP <b>✳</b></span>
+              <span className="ticker-item ticker-item-3"><small>03</small> STAY HUMBLE, NAKAMA <b>☻</b></span>
+              <span className="ticker-item ticker-item-outline ticker-item-4"><small>04</small> FIND YOUR ALL BLUE <b>✳</b></span>
+              <span className="ticker-item ticker-item-sticker ticker-item-5">JUST A HUMAN WITH A KEYBOARD & A DREAM <b>↗</b></span>
             </div>
           ))}
         </div>
         <div className="ticker-controls">
-          <button className="ticker-palette" type="button" onClick={() => setLanePalette((palette) => (palette + 1) % 4)} aria-label="Change kinetic lane color palette" title="Change lane color">
-            <span className={`palette-dots palette-${lanePalette}`}><i /><i /><i /></span><small>COLOR SHIFT</small>
-          </button>
-          <button className="ticker-flash" type="button" aria-label={chaosMode ? "Turn off chaos mode" : "Turn on chaos mode"} aria-pressed={chaosMode} onClick={() => setChaosMode((value) => !value)} title={chaosMode ? "Tame the chaos" : "Turn up the chaos"}>
-            <span>{chaosMode ? "−" : "✳"}</span><small>{chaosMode ? "TAME IT" : "MORE CHAOS"}</small>
+          <button
+            className="ticker-flash"
+            type="button"
+            aria-label={chaosMode ? "Turn off chaos mode" : "Turn on chaos mode"}
+            aria-pressed={chaosMode}
+            onClick={() => setChaosMode((value) => !value)}
+            title={chaosMode ? "Tame the chaos" : "Turn up the chaos"}
+          >
+            <span>{chaosMode ? "−" : "✳"}</span>
+            <small>{chaosMode ? "TAME IT" : "MORE CHAOS"}</small>
           </button>
         </div>
       </section>
@@ -510,7 +530,12 @@ export default function Home() {
       </section>
 
 
-      <section className="contact-section section-pad" id="contact">
+      <section
+        className="contact-section section-pad"
+        id="contact"
+        onPointerMove={handleContactMove}
+        onPointerLeave={handleContactLeave}
+      >
         <div className="contact-orbit orbit-ring" aria-hidden="true"><span>THE NEXT ADVENTURE STARTS HERE ✳ THE NEXT ADVENTURE STARTS HERE ✳</span></div>
         <div className="contact-content" data-reveal>
           <span className="eyebrow">04 / YOUR NEXT ADVENTURE</span>
