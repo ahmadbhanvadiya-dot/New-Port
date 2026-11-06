@@ -4,71 +4,71 @@ import { useEffect, useRef, useState } from "react";
 
 // Exact 60 frames sorted numerically, handling the gaps at frame_057 and frame_060 safely
 const FRAME_FILES: readonly string[] = [
-  "frame_001.png",
-  "frame_002.png",
-  "frame_003.png",
-  "frame_004.png",
-  "frame_005.png",
-  "frame_006.png",
-  "frame_007.png",
-  "frame_008.png",
-  "frame_009.png",
-  "frame_010.png",
-  "frame_011.png",
-  "frame_012.png",
-  "frame_013.png",
-  "frame_014.png",
-  "frame_015.png",
-  "frame_016.png",
-  "frame_017.png",
-  "frame_018.png",
-  "frame_019.png",
-  "frame_020.png",
-  "frame_021.png",
-  "frame_022.png",
-  "frame_023.png",
-  "frame_024.png",
-  "frame_025.png",
-  "frame_026.png",
-  "frame_027.png",
-  "frame_028.png",
-  "frame_029.png",
-  "frame_030.png",
-  "frame_031.png",
-  "frame_032.png",
-  "frame_033.png",
-  "frame_034.png",
-  "frame_035.png",
-  "frame_036.png",
-  "frame_037.png",
-  "frame_038.png",
-  "frame_039.png",
-  "frame_040.png",
-  "frame_041.png",
-  "frame_042.png",
-  "frame_043.png",
-  "frame_044.png",
-  "frame_045.png",
-  "frame_046.png",
-  "frame_047.png",
-  "frame_048.png",
-  "frame_049.png",
-  "frame_050.png",
-  "frame_051.png",
-  "frame_052.png",
-  "frame_053.png",
-  "frame_054.png",
-  "frame_055.png",
-  "frame_056.png",
-  "frame_058.png",
-  "frame_059.png",
-  "frame_061.png",
-  "frame_062.png",
+  "frame_001.webp",
+  "frame_002.webp",
+  "frame_003.webp",
+  "frame_004.webp",
+  "frame_005.webp",
+  "frame_006.webp",
+  "frame_007.webp",
+  "frame_008.webp",
+  "frame_009.webp",
+  "frame_010.webp",
+  "frame_011.webp",
+  "frame_012.webp",
+  "frame_013.webp",
+  "frame_014.webp",
+  "frame_015.webp",
+  "frame_016.webp",
+  "frame_017.webp",
+  "frame_018.webp",
+  "frame_019.webp",
+  "frame_020.webp",
+  "frame_021.webp",
+  "frame_022.webp",
+  "frame_023.webp",
+  "frame_024.webp",
+  "frame_025.webp",
+  "frame_026.webp",
+  "frame_027.webp",
+  "frame_028.webp",
+  "frame_029.webp",
+  "frame_030.webp",
+  "frame_031.webp",
+  "frame_032.webp",
+  "frame_033.webp",
+  "frame_034.webp",
+  "frame_035.webp",
+  "frame_036.webp",
+  "frame_037.webp",
+  "frame_038.webp",
+  "frame_039.webp",
+  "frame_040.webp",
+  "frame_041.webp",
+  "frame_042.webp",
+  "frame_043.webp",
+  "frame_044.webp",
+  "frame_045.webp",
+  "frame_046.webp",
+  "frame_047.webp",
+  "frame_048.webp",
+  "frame_049.webp",
+  "frame_050.webp",
+  "frame_051.webp",
+  "frame_052.webp",
+  "frame_053.webp",
+  "frame_054.webp",
+  "frame_055.webp",
+  "frame_056.webp",
+  "frame_058.webp",
+  "frame_059.webp",
+  "frame_061.webp",
+  "frame_062.webp",
 ];
 
 const TOTAL_FRAMES = FRAME_FILES.length; // 60
-const INITIAL_PRELOAD_COUNT = 6;
-const MAX_CONCURRENT_LOADS = 3;
+const INITIAL_PRELOAD_COUNT = 12;
+const MAX_CONCURRENT_LOADS = 8;
 
 function getFrameSrc(index: number): string {
   const safeIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.floor(index)));
@@ -146,7 +146,7 @@ export default function ScrollBackground() {
       const dw = Math.round(nw * scale);
       const dh = Math.round(nh * scale);
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const maxShiftX = Math.max(0, (dw - cw) * 0.5);
       const maxShiftY = Math.max(0, (dh - ch) * 0.5);
       const rawShiftX = mouseCurrentRef.current.x * 6 * dpr;
@@ -248,7 +248,7 @@ export default function ScrollBackground() {
 
     const resizeCanvasToDisplaySize = (): boolean => {
       const rect = container.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const targetWidth = Math.max(1, Math.round(rect.width * dpr));
       const targetHeight = Math.max(1, Math.round(rect.height * dpr));
 
@@ -407,7 +407,7 @@ export default function ScrollBackground() {
       aria-hidden="true"
     >
       <img
-        src="/frames/frame_001.png"
+        src="/frames/frame_001.webp"
         alt=""
         className="scroll-bg-initial-poster"
         style={{
