@@ -268,29 +268,16 @@ export default function ScrollBackground() {
       }
     };
 
-    // Finish the scroll animation approximately halfway through the overall website,
-    // comfortably before the Skills section (#lab) and "Curiosity, set sail".
+    // Finish the animation exactly when the "Curiosity, set sail" (#lab) section
+    // starts entering the screen: its top edge is ~63% down the viewport at the
+    // end, so the last frame is fully reached just before the section covers it.
     const getAnimationEndY = () => {
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const about = document.getElementById("about");
       const lab = document.getElementById("lab");
-
-      if (about && lab) {
-        const aboutTop = about.getBoundingClientRect().top + window.scrollY;
-        const labTop = lab.getBoundingClientRect().top + window.scrollY;
-        // Finish midway through the About section, well before the Lab/Skills section
-        const targetY = aboutTop + (labTop - aboutTop) * 0.45;
-        return Math.max(1, Math.min(maxScroll * 0.52, targetY));
-      }
-
-      if (about) {
-        const aboutTop = about.getBoundingClientRect().top + window.scrollY;
-        return Math.max(1, Math.min(maxScroll * 0.52, aboutTop + about.offsetHeight * 0.35));
-      }
 
       if (lab) {
         const labTop = lab.getBoundingClientRect().top + window.scrollY;
-        return Math.max(1, Math.min(maxScroll * 0.5, labTop - window.innerHeight * 0.75));
+        return Math.max(1, Math.min(maxScroll, labTop - window.innerHeight * 0.63));
       }
 
       return Math.max(1, maxScroll * 0.48);
