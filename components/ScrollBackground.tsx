@@ -268,16 +268,17 @@ export default function ScrollBackground() {
       }
     };
 
-    // Finish the animation exactly when the "Curiosity, set sail" (#lab) section
-    // starts entering the screen: its top edge is ~63% down the viewport at the
-    // end, so the last frame is fully reached just before the section covers it.
+    // Finish the animation BEFORE the "Curiosity, set sail" (#lab) section appears:
+    // the last frame is reached when the section's top edge is still ~10% of a
+    // screen below the bottom of the viewport, so it is fully done (with a little
+    // room for the smoothing to catch up) before the section scrolls into view.
     const getAnimationEndY = () => {
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const lab = document.getElementById("lab");
 
       if (lab) {
         const labTop = lab.getBoundingClientRect().top + window.scrollY;
-        return Math.max(1, Math.min(maxScroll, labTop - window.innerHeight * 0.63));
+        return Math.max(1, Math.min(maxScroll, labTop - window.innerHeight * 1.1));
       }
 
       return Math.max(1, maxScroll * 0.48);
