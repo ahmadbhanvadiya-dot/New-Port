@@ -103,7 +103,7 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [workFilter, setWorkFilter] = useState("All work");
   const [projectIndex, setProjectIndex] = useState(0);
-  const [activeCrew, setActiveCrew] = useState("COMPASS CORSAIRS");
+  const [activeCrew, setActiveCrew] = useState("STRAW HAT PIRATES");
   const [chaosMode, setChaosMode] = useState(false);
   const [signalMode, setSignalMode] = useState(0);
   const [labPhase, setLabPhase] = useState(0);
