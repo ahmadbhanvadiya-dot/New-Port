@@ -2,91 +2,34 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Exact 60 frames sorted numerically, handling the gaps at frame_057 and frame_060 safely
-const FRAME_FILES: readonly string[] = [
-  "frame_001.webp",
-  "frame_002.webp",
-  "frame_003.webp",
-  "frame_004.webp",
-  "frame_005.webp",
-  "frame_006.webp",
-  "frame_007.webp",
-  "frame_008.webp",
-  "frame_009.webp",
-  "frame_010.webp",
-  "frame_011.webp",
-  "frame_012.webp",
-  "frame_013.webp",
-  "frame_014.webp",
-  "frame_015.webp",
-  "frame_016.webp",
-  "frame_017.webp",
-  "frame_018.webp",
-  "frame_019.webp",
-  "frame_020.webp",
-  "frame_021.webp",
-  "frame_022.webp",
-  "frame_023.webp",
-  "frame_024.webp",
-  "frame_025.webp",
-  "frame_026.webp",
-  "frame_027.webp",
-  "frame_028.webp",
-  "frame_029.webp",
-  "frame_030.webp",
-  "frame_031.webp",
-  "frame_032.webp",
-  "frame_033.webp",
-  "frame_034.webp",
-  "frame_035.webp",
-  "frame_036.webp",
-  "frame_037.webp",
-  "frame_038.webp",
-  "frame_039.webp",
-  "frame_040.webp",
-  "frame_041.webp",
-  "frame_042.webp",
-  "frame_043.webp",
-  "frame_044.webp",
-  "frame_045.webp",
-  "frame_046.webp",
-  "frame_047.webp",
-  "frame_048.webp",
-  "frame_049.webp",
-  "frame_050.webp",
-  "frame_051.webp",
-  "frame_052.webp",
-  "frame_053.webp",
-  "frame_054.webp",
-  "frame_055.webp",
-  "frame_056.webp",
-  "frame_058.webp",
-  "frame_059.webp",
-  "frame_061.webp",
-  "frame_062.webp",
-];
+/**
+ * Scroll-scrubbed background.
+ *
+ * - 101 WebP frames (every frame of the source video), ~6 MB total on desktop.
+ * - A lighter 1280x720 set is used on phones / touch devices.
+ * - Compressed files are all downloaded up front (tiny), but only a small window of
+ *   frames around the current scroll position is decoded into GPU-friendly bitmaps,
+ *   so memory stays low and drawing is cheap.
+ * - Fractional frames are cross-blended, so motion stays smooth between frames.
+ * - The animation finishes BEFORE the "Curiosity, set sail" (#lab) section appears.
+ */
 
-const TOTAL_FRAMES = FRAME_FILES.length; // 60
-const INITIAL_PRELOAD_COUNT = 12;
-const MAX_CONCURRENT_LOADS = 8;
+const TOTAL_FRAMES = 101;
+const DESKTOP_DIR = "/frames";
+const MOBILE_DIR = "/frames-m";
+const DECODE_WINDOW = 12; // decoded bitmaps kept on each side of the current frame
+const EVICT_MARGIN = 4; // extra distance before a decoded bitmap is released
+const MAX_CONCURRENT_FETCHES = 8;
+const INITIAL_PRIORITY_FRAMES = 16;
+const END_BEFORE_LAB_VH = 1.2; // finish when #lab is still 0.2 screens below the fold
+const LERP_SPEED = 18; // higher = snappier
+const MAX_CANVAS_WIDTH = 2560;
 
-function getFrameSrc(index: number): string {
-  const safeIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.floor(index)));
-  return `/frames/${FRAME_FILES[safeIndex]}`;
-}
+const pad = (n: number) => String(n).padStart(3, "0");
 
 export default function ScrollBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const currentFrameRef = useRef(0);
-  const targetFrameRef = useRef(0);
-  const lastRenderedIndexRef = useRef(-1);
-  const rafIdRef = useRef<number | null>(null);
-  const mouseTargetRef = useRef({ x: 0, y: 0 });
-  const mouseCurrentRef = useRef({ x: 0, y: 0 });
-  // Persistent image cache: once loaded, frames stay cached in memory
-  const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null));
-  const loadingSetRef = useRef<Set<number>>(new Set());
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
 
   useEffect(() => {
@@ -97,294 +40,306 @@ export default function ScrollBackground() {
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    let isMounted = true;
-    let lastTime = performance.now();
-    let idlePreloadTimer: ReturnType<typeof setTimeout> | null = null;
+    const useMobileSet = window.matchMedia("(max-width: 820px), (pointer: coarse)").matches;
+    const dir = useMobileSet ? MOBILE_DIR : DESKTOP_DIR;
+    const frameUrl = (i: number) => `${dir}/f${pad(i)}.webp`;
 
-    const configureSmoothing = () => {
+    let isMounted = true;
+    const abort = new AbortController();
+
+    const blobs: (Blob | null)[] = new Array(TOTAL_FRAMES).fill(null);
+    const bitmaps: (ImageBitmap | null)[] = new Array(TOTAL_FRAMES).fill(null);
+    const fetching = new Set<number>();
+    const decoding = new Set<number>();
+
+    let current = 0;
+    let target = 0;
+    let lastKey = -1;
+    let rafId: number | null = null;
+    let lastTime = performance.now();
+    let endY = 1;
+    let firstReported = false;
+    const mouseTarget = { x: 0, y: 0 };
+    const mouseCurrent = { x: 0, y: 0 };
+
+    const configureCtx = () => {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
     };
+    configureCtx();
 
-    configureSmoothing();
+    /* ---------- frame lookup ---------- */
 
-    // Find the closest loaded frame to avoid blank canvas or flickering
-    const getBestAvailableFrame = (index: number): HTMLImageElement | null => {
-      const clamped = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(index)));
-      const direct = imagesRef.current[clamped];
-      if (direct?.complete && direct.naturalWidth > 0) return direct;
-
-      for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
-        const prev = clamped - offset;
-        if (prev >= 0) {
-          const img = imagesRef.current[prev];
-          if (img?.complete && img.naturalWidth > 0) return img;
-        }
-        const next = clamped + offset;
-        if (next < TOTAL_FRAMES) {
-          const img = imagesRef.current[next];
-          if (img?.complete && img.naturalWidth > 0) return img;
-        }
+    const nearestBitmap = (index: number): ImageBitmap | null => {
+      const c = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(index)));
+      if (bitmaps[c]) return bitmaps[c];
+      for (let o = 1; o < TOTAL_FRAMES; o++) {
+        if (c - o >= 0 && bitmaps[c - o]) return bitmaps[c - o];
+        if (c + o < TOTAL_FRAMES && bitmaps[c + o]) return bitmaps[c + o];
       }
       return null;
     };
 
-    const renderCurrentFrame = () => {
-      const image = getBestAvailableFrame(currentFrameRef.current);
-      if (!image) return;
+    /* ---------- drawing ---------- */
 
+    const drawCover = (img: ImageBitmap) => {
       const cw = canvas.width;
       const ch = canvas.height;
-      if (cw === 0 || ch === 0) return;
+      const baseScale = Math.max(cw / img.width, ch / img.height);
+      const scale = baseScale * 1.02; // small margin for mouse parallax
+      const dw = Math.round(img.width * scale);
+      const dh = Math.round(img.height * scale);
 
-      const nw = image.naturalWidth || 1920;
-      const nh = image.naturalHeight || 1080;
-
-      // Cover calculation with modest 1.5% margin for crisp mouse parallax
-      const baseScale = Math.max(cw / nw, ch / nh);
-      const scale = baseScale * 1.015;
-      const dw = Math.round(nw * scale);
-      const dh = Math.round(nh * scale);
-
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const dpr = cw / Math.max(1, canvas.clientWidth || cw);
       const maxShiftX = Math.max(0, (dw - cw) * 0.5);
       const maxShiftY = Math.max(0, (dh - ch) * 0.5);
-      const rawShiftX = mouseCurrentRef.current.x * 6 * dpr;
-      const rawShiftY = mouseCurrentRef.current.y * 6 * dpr;
-      const shiftX = Math.round(Math.max(-maxShiftX, Math.min(maxShiftX, rawShiftX)));
-      const shiftY = Math.round(Math.max(-maxShiftY, Math.min(maxShiftY, rawShiftY)));
+      const shiftX = Math.round(Math.max(-maxShiftX, Math.min(maxShiftX, mouseCurrent.x * 6 * dpr)));
+      const shiftY = Math.round(Math.max(-maxShiftY, Math.min(maxShiftY, mouseCurrent.y * 6 * dpr)));
 
-      const dx = Math.round((cw - dw) * 0.5) + shiftX;
-      const dy = Math.round((ch - dh) * 0.5) + shiftY;
-
-      configureSmoothing();
-      ctx.drawImage(image, dx, dy, dw, dh);
-      lastRenderedIndexRef.current = Math.round(currentFrameRef.current);
+      ctx.drawImage(
+        img,
+        Math.round((cw - dw) * 0.5) + shiftX,
+        Math.round((ch - dh) * 0.5) + shiftY,
+        dw,
+        dh
+      );
     };
 
-    // Forward declaration of pumpQueue
-    let pumpQueue = () => {};
+    const render = () => {
+      if (canvas.width === 0 || canvas.height === 0) return;
+      const lo = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.floor(current)));
+      const hi = Math.min(TOTAL_FRAMES - 1, lo + 1);
+      const t = current - lo;
 
-    // Load a single frame if not already cached or loading
-    const loadFrame = (index: number, onLoaded?: () => void) => {
-      if (index < 0 || index >= TOTAL_FRAMES) return;
-      if (imagesRef.current[index]?.complete && imagesRef.current[index]?.naturalWidth! > 0) {
-        onLoaded?.();
-        return;
+      const base = nearestBitmap(lo);
+      if (!base) return;
+      drawCover(base);
+
+      // Cross-blend toward the next frame for smooth in-between motion
+      const next = bitmaps[hi];
+      if (t > 0.04 && next && base === bitmaps[lo] && next !== base) {
+        ctx.globalAlpha = t;
+        drawCover(next);
+        ctx.globalAlpha = 1;
       }
-      if (loadingSetRef.current.has(index)) return;
-
-      loadingSetRef.current.add(index);
-      const img = new Image();
-      img.decoding = "async";
-
-      const markReady = () => {
-        loadingSetRef.current.delete(index);
-        if (!isMounted) return;
-        imagesRef.current[index] = img;
-        if (index === 0) setFirstFrameLoaded(true);
-
-        // If close to the target view, render immediately without waiting for next scroll
-        if (Math.abs(targetFrameRef.current - index) <= 1.5) {
-          renderCurrentFrame();
-        }
-        onLoaded?.();
-        pumpQueue();
-      };
-
-      img.onload = () => {
-        if ("decode" in img) {
-          img.decode().then(markReady).catch(markReady);
-        } else {
-          markReady();
-        }
-      };
-
-      img.onerror = () => {
-        loadingSetRef.current.delete(index);
-        imagesRef.current[index] = null;
-        pumpQueue();
-      };
-
-      img.src = getFrameSrc(index);
+      lastKey = Math.round(current * 8);
     };
 
-    // Queue loader that bounds network concurrency and prioritizes frames near current scroll
-    pumpQueue = () => {
+    /* ---------- decoding window ---------- */
+
+    const decodeFrame = (i: number) => {
+      const blob = blobs[i];
+      if (!blob || bitmaps[i] || decoding.has(i)) return;
+      decoding.add(i);
+      createImageBitmap(blob)
+        .then((bmp) => {
+          decoding.delete(i);
+          const stillWanted = Math.abs(i - Math.round(target)) <= DECODE_WINDOW + EVICT_MARGIN;
+          if (!isMounted || !stillWanted) {
+            bmp.close();
+            return;
+          }
+          bitmaps[i] = bmp;
+          if (!firstReported && i === 0) {
+            firstReported = true;
+            setFirstFrameLoaded(true);
+          }
+          if (Math.abs(current - i) <= 1.5) {
+            lastKey = -1;
+            render();
+          }
+        })
+        .catch(() => decoding.delete(i));
+    };
+
+    const updateDecodeWindow = () => {
+      const center = Math.round(target);
+      const start = Math.max(0, center - DECODE_WINDOW);
+      const end = Math.min(TOTAL_FRAMES - 1, center + DECODE_WINDOW);
+      // decode nearest-first so the frames you need next are ready soonest
+      for (let o = 0; o <= DECODE_WINDOW; o++) {
+        if (center + o <= end) decodeFrame(center + o);
+        if (o > 0 && center - o >= start) decodeFrame(center - o);
+      }
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        if (bitmaps[i] && Math.abs(i - center) > DECODE_WINDOW + EVICT_MARGIN) {
+          bitmaps[i]!.close();
+          bitmaps[i] = null;
+        }
+      }
+    };
+
+    /* ---------- downloading (compressed files are small, keep them all) ---------- */
+
+    let pump = () => {};
+
+    const fetchFrame = (i: number) => {
+      if (i < 0 || i >= TOTAL_FRAMES || blobs[i] || fetching.has(i)) return;
+      fetching.add(i);
+      fetch(frameUrl(i), { signal: abort.signal })
+        .then((r) => (r.ok ? r.blob() : Promise.reject(new Error("bad frame"))))
+        .then((blob) => {
+          fetching.delete(i);
+          if (!isMounted) return;
+          blobs[i] = blob;
+          if (Math.abs(i - Math.round(target)) <= DECODE_WINDOW) decodeFrame(i);
+          pump();
+        })
+        .catch(() => {
+          fetching.delete(i);
+          if (isMounted) setTimeout(pump, 400);
+        });
+    };
+
+    pump = () => {
       if (!isMounted) return;
-      while (loadingSetRef.current.size < MAX_CONCURRENT_LOADS) {
-        let nextIndex = -1;
-        const center = Math.round(targetFrameRef.current);
-
-        // Search outward from current scroll target
-        for (let offset = 0; offset < TOTAL_FRAMES; offset++) {
-          const ahead = center + offset;
-          if (ahead < TOTAL_FRAMES && !imagesRef.current[ahead] && !loadingSetRef.current.has(ahead)) {
-            nextIndex = ahead;
+      while (fetching.size < MAX_CONCURRENT_FETCHES) {
+        const center = Math.round(target);
+        let next = -1;
+        for (let o = 0; o < TOTAL_FRAMES; o++) {
+          if (center + o < TOTAL_FRAMES && !blobs[center + o] && !fetching.has(center + o)) {
+            next = center + o;
             break;
           }
-          const behind = center - offset;
-          if (behind >= 0 && !imagesRef.current[behind] && !loadingSetRef.current.has(behind)) {
-            nextIndex = behind;
+          if (center - o >= 0 && !blobs[center - o] && !fetching.has(center - o)) {
+            next = center - o;
             break;
           }
         }
-
-        if (nextIndex === -1) break;
-        loadFrame(nextIndex);
+        if (next === -1) break;
+        fetchFrame(next);
       }
     };
 
-    // Prioritize frames around current scrub target
-    const prioritizeFramesAround = (centerIndex: number) => {
-      const center = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(centerIndex)));
-      const start = Math.max(0, center - 2);
-      const end = Math.min(TOTAL_FRAMES - 1, center + 4);
+    /* ---------- sizing & scroll range ---------- */
 
-      for (let i = start; i <= end; i++) {
-        loadFrame(i);
-      }
-    };
-
-    const resizeCanvasToDisplaySize = (): boolean => {
+    const resizeCanvas = (): boolean => {
       const rect = container.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      const targetWidth = Math.max(1, Math.round(rect.width * dpr));
-      const targetHeight = Math.max(1, Math.round(rect.height * dpr));
-
-      if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
-        canvas.width = targetWidth;
-        canvas.height = targetHeight;
-        configureSmoothing();
+      let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      if (rect.width * dpr > MAX_CANVAS_WIDTH) dpr = MAX_CANVAS_WIDTH / rect.width;
+      const w = Math.max(1, Math.round(rect.width * dpr));
+      const h = Math.max(1, Math.round(rect.height * dpr));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+        configureCtx();
         return true;
       }
       return false;
     };
 
-    const handleResize = () => {
-      if (resizeCanvasToDisplaySize()) {
-        lastRenderedIndexRef.current = -1;
-        renderCurrentFrame();
-      }
-    };
-
-    // Finish the animation BEFORE the "Curiosity, set sail" (#lab) section appears:
-    // the last frame is reached when the section's top edge is still ~10% of a
-    // screen below the bottom of the viewport, so it is fully done (with a little
-    // room for the smoothing to catch up) before the section scrolls into view.
-    const getAnimationEndY = () => {
+    // Last frame is reached before the "Curiosity, set sail" (#lab) section comes into view.
+    const computeEndY = () => {
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const lab = document.getElementById("lab");
-
       if (lab) {
         const labTop = lab.getBoundingClientRect().top + window.scrollY;
-        return Math.max(1, Math.min(maxScroll, labTop - window.innerHeight * 1.1));
+        endY = Math.max(1, Math.min(maxScroll, labTop - window.innerHeight * END_BEFORE_LAB_VH));
+      } else {
+        endY = Math.max(1, maxScroll * 0.48);
       }
-
-      return Math.max(1, maxScroll * 0.48);
     };
 
-    const updateLoop = (now: number) => {
-      rafIdRef.current = null;
+    /* ---------- animation loop ---------- */
+
+    const loop = (now: number) => {
+      rafId = null;
       if (!isMounted) return;
       const dt = Math.min((now - lastTime) / 1000, 0.1);
       lastTime = now;
 
-      // Smooth lerp physics for scroll scrubbing
-      const frameDiff = targetFrameRef.current - currentFrameRef.current;
-      currentFrameRef.current += frameDiff * Math.min(1, 14 * dt);
-      if (Math.abs(targetFrameRef.current - currentFrameRef.current) < 0.02) {
-        currentFrameRef.current = targetFrameRef.current;
+      const diff = target - current;
+      current += diff * Math.min(1, LERP_SPEED * dt);
+      if (Math.abs(target - current) < 0.01) current = target;
+
+      const mx = mouseTarget.x - mouseCurrent.x;
+      const my = mouseTarget.y - mouseCurrent.y;
+      mouseCurrent.x += mx * Math.min(1, 6 * dt);
+      mouseCurrent.y += my * Math.min(1, 6 * dt);
+
+      if (Math.round(current * 8) !== lastKey || Math.abs(mx) > 0.005 || Math.abs(my) > 0.005) {
+        render();
       }
 
-      // Parallax smooth interpolation
-      const mxDiff = mouseTargetRef.current.x - mouseCurrentRef.current.x;
-      const myDiff = mouseTargetRef.current.y - mouseCurrentRef.current.y;
-      mouseCurrentRef.current.x += mxDiff * Math.min(1, 6 * dt);
-      mouseCurrentRef.current.y += myDiff * Math.min(1, 6 * dt);
+      container.style.setProperty("--glow-x", `${((mouseCurrent.x + 1) * 50).toFixed(1)}%`);
+      container.style.setProperty("--glow-y", `${((mouseCurrent.y + 1) * 50).toFixed(1)}%`);
+      container.style.setProperty("--glow-boost", `${0.45 + Math.min(1, Math.abs(diff) * 0.03) * 0.35}`);
 
-      const targetInt = Math.round(currentFrameRef.current);
       if (
-        targetInt !== lastRenderedIndexRef.current ||
-        Math.abs(mxDiff) > 0.005 ||
-        Math.abs(myDiff) > 0.005
+        Math.abs(target - current) > 0.01 ||
+        Math.abs(mouseTarget.x - mouseCurrent.x) > 0.005 ||
+        Math.abs(mouseTarget.y - mouseCurrent.y) > 0.005
       ) {
-        renderCurrentFrame();
-      }
-
-      container.style.setProperty("--glow-x", `${((mouseCurrentRef.current.x + 1) * 50).toFixed(1)}%`);
-      container.style.setProperty("--glow-y", `${((mouseCurrentRef.current.y + 1) * 50).toFixed(1)}%`);
-      const velocity = Math.min(1, Math.abs(frameDiff) * 0.05);
-      container.style.setProperty("--glow-boost", `${0.45 + velocity * 0.35}`);
-
-      const stillMoving =
-        Math.abs(targetFrameRef.current - currentFrameRef.current) > 0.02 ||
-        Math.abs(mouseTargetRef.current.x - mouseCurrentRef.current.x) > 0.005 ||
-        Math.abs(mouseTargetRef.current.y - mouseCurrentRef.current.y) > 0.005;
-
-      if (stillMoving) {
-        rafIdRef.current = requestAnimationFrame(updateLoop);
+        rafId = requestAnimationFrame(loop);
       }
     };
 
-    const scheduleLoop = () => {
-      if (rafIdRef.current === null) {
+    const schedule = () => {
+      if (rafId === null) {
         lastTime = performance.now();
-        rafIdRef.current = requestAnimationFrame(updateLoop);
+        rafId = requestAnimationFrame(loop);
       }
     };
 
-    const handleScroll = () => {
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      const endY = getAnimationEndY();
-      const progress = Math.min(1, Math.max(0, scrollY / endY));
-      targetFrameRef.current = progress * (TOTAL_FRAMES - 1);
-
-      prioritizeFramesAround(targetFrameRef.current);
-      scheduleLoop();
+    const onScroll = () => {
+      const y = window.scrollY || window.pageYOffset || 0;
+      target = Math.min(1, Math.max(0, y / endY)) * (TOTAL_FRAMES - 1);
+      updateDecodeWindow();
+      schedule();
     };
 
-    const handlePointerMove = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
-      mouseTargetRef.current = {
-        x: (event.clientX / window.innerWidth - 0.5) * 2,
-        y: (event.clientY / window.innerHeight - 0.5) * 2,
-      };
-      scheduleLoop();
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      mouseTarget.x = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseTarget.y = (e.clientY / window.innerHeight - 0.5) * 2;
+      schedule();
     };
 
-    // Preload initial frames immediately, plus final frame to ensure bounds are ready
-    for (let i = 0; i < INITIAL_PRELOAD_COUNT; i++) {
-      loadFrame(i);
+    const onResize = () => {
+      computeEndY();
+      if (resizeCanvas()) {
+        lastKey = -1;
+        render();
+      }
+      onScroll();
+    };
+
+    /* ---------- start ---------- */
+
+    for (let i = 0; i < INITIAL_PRIORITY_FRAMES; i++) fetchFrame(i);
+    fetchFrame(TOTAL_FRAMES - 1);
+    const startTimer = setTimeout(pump, 100);
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("resize", onResize);
+    window.addEventListener("load", onResize);
+
+    // Page height changes as fonts/images/sections settle; keep the end point accurate.
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        computeEndY();
+        onScroll();
+      });
+      resizeObserver.observe(document.body);
     }
-    loadFrame(TOTAL_FRAMES - 1);
 
-    // Start background progressive preload during idle time
-    idlePreloadTimer = setTimeout(() => pumpQueue(), 150);
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    window.addEventListener("resize", handleResize);
-
-    resizeCanvasToDisplaySize();
-    renderCurrentFrame();
-    handleScroll();
+    computeEndY();
+    resizeCanvas();
+    onScroll();
 
     return () => {
       isMounted = false;
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("resize", handleResize);
-      if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
-      if (idlePreloadTimer) clearTimeout(idlePreloadTimer);
-      imagesRef.current.forEach((image) => {
-        if (image) {
-          image.onload = null;
-          image.onerror = null;
-        }
-      });
-      imagesRef.current = [];
-      loadingSetRef.current.clear();
+      abort.abort();
+      clearTimeout(startTimer);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("load", onResize);
+      resizeObserver?.disconnect();
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      bitmaps.forEach((b) => b?.close());
     };
   }, []);
 
@@ -395,7 +350,7 @@ export default function ScrollBackground() {
       aria-hidden="true"
     >
       <img
-        src="/frames/frame_001.webp"
+        src="/frames/f000.webp"
         alt=""
         className="scroll-bg-initial-poster"
         style={{
