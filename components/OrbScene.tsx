@@ -6,9 +6,9 @@ import { useRef, useState } from "react";
 import * as THREE from "three";
 
 const moods = [
-  { crew: "straw", skull: "#f6efdc", shadow: "#17202b", accent: "#d7a943", ribbon: "#c93636", label: "STRAW HAT PIRATES" },
-  { crew: "redhair", skull: "#f5dfb5", shadow: "#171923", accent: "#b72d36", ribbon: "#8f2527", label: "RED HAIR PIRATES" },
-  { crew: "heart", skull: "#f0eee6", shadow: "#18202a", accent: "#a9b4c6", ribbon: "#202b3c", label: "HEART PIRATES · LAW" },
+  { crew: "compass", skull: "#f4ecd8", shadow: "#14202e", accent: "#d9ad4a", ribbon: "#1f3a5f", label: "COMPASS CORSAIRS" },
+  { crew: "cinder", skull: "#f3e3cf", shadow: "#1a1416", accent: "#ff7a2f", ribbon: "#b8321c", label: "CINDER SABRES" },
+  { crew: "moontide", skull: "#eef3f4", shadow: "#16212b", accent: "#8fd0e8", ribbon: "#3b6fa8", label: "MOONTIDE CREW" },
 ];
 
 function Bone({ from, to, radius, color }: { from: [number, number, number]; to: [number, number, number]; radius: number; color: string }) {
@@ -64,12 +64,12 @@ function JollyRoger({ mood, hovering, pointerTarget }: { mood: number; hovering:
     <Float speed={hovering ? 2 : 1} rotationIntensity={hovering ? 0.12 : 0.045} floatIntensity={0.17}>
       <group ref={emblem}>
         {/* Crossbones sit behind the skull and have visible rounded ends. */}
-        {palette.crew !== "redhair" && <group position={[0, -0.08, -0.16]}>
+        {palette.crew !== "cinder" && <group position={[0, -0.08, -0.16]}>
           <Bone from={[-0.98, -0.83, 0]} to={[0.98, 0.83, 0]} radius={0.105} color={ivory} />
           <Bone from={[-0.98, 0.83, -0.01]} to={[0.98, -0.83, -0.01]} radius={0.105} color={ivory} />
         </group>}
-        {palette.crew === "redhair" && <group position={[0, -0.13, -0.23]}>
-          {/* Crossed sabres make the Red Hair crew silhouette distinct from the other flags. */}
+        {palette.crew === "cinder" && <group position={[0, -0.13, -0.23]}>
+          {/* Crossed cutlasses with basket guards give the Cinder Sabres their own silhouette. */}
           {[ -1, 1 ].map((side) => <group key={side} rotation={[0, 0, side * -0.7]}>
             <mesh position={[side * 0.05, -0.03, 0]} rotation={[0, 0, side * 0.04]}>
               <boxGeometry args={[0.075, 2.15, 0.045]} />
@@ -99,26 +99,32 @@ function JollyRoger({ mood, hovering, pointerTarget }: { mood: number; hovering:
         {/* Teeth are small, readable blocks along the jaw. */}
         {[-0.29,-0.145,0,0.145,0.29].map((x, i) => <mesh key={i} position={[x, -0.49, 0.466]}><boxGeometry args={[0.115, 0.13, 0.035]} /><meshStandardMaterial color={ivory} roughness={0.4} /></mesh>)}
         {[-0.2175,-0.0725,0.0725,0.2175].map((x, i) => <mesh key={`tooth-gap-${i}`} position={[x, -0.49, 0.487]}><boxGeometry args={[0.012, 0.115, 0.008]} /><meshStandardMaterial color={palette.shadow} roughness={0.55} /></mesh>)}
-        {palette.crew === "straw" && <>
-          {/* Straw Hat crew: broad golden brim, domed crown and red ribbon. */}
-          <mesh position={[0, 0.67, 0.12]} rotation={[0.02, 0, -0.035]} scale={[1.02, 0.13, 0.49]}><sphereGeometry args={[1, 48, 24]} /><meshStandardMaterial color={palette.accent} roughness={0.52} /></mesh>
-          <mesh position={[0, 0.84, 0.12]} scale={[0.57, 0.34, 0.38]}><sphereGeometry args={[1, 40, 24]} /><meshStandardMaterial color={palette.accent} roughness={0.47} /></mesh>
-          <mesh position={[0, 0.73, 0.13]} scale={[0.78, 0.065, 0.43]}><sphereGeometry args={[1, 40, 20]} /><meshStandardMaterial color={palette.ribbon} roughness={0.38} /></mesh>
-          {[-0.34,-0.17,0,0.17,0.34].map((x, i) => <mesh key={i} position={[x, 0.93 + (1-Math.abs(x))*0.025, 0.44]} rotation={[0,0,x*0.35]}><boxGeometry args={[0.018,0.12,0.012]} /><meshStandardMaterial color="#9b742d" roughness={0.6} /></mesh>)}
+        {palette.crew === "compass" && <>
+          {/* Compass Corsairs: navy tricorn with brass trim, a quill feather and a tiny brass compass badge. */}
+          <mesh position={[0, 0.7, 0.12]} rotation={[0, Math.PI / 2, 0]} scale={[1.12, 1, 0.92]}><cylinderGeometry args={[0.8, 0.8, 0.075, 3]} /><meshStandardMaterial color={palette.ribbon} roughness={0.5} /></mesh>
+          <mesh position={[0, 0.7, 0.12]} rotation={[0, Math.PI / 2, 0]} scale={[1.12, 1, 0.92]}><cylinderGeometry args={[0.83, 0.83, 0.03, 3]} /><meshStandardMaterial color={palette.accent} metalness={0.5} roughness={0.32} /></mesh>
+          <mesh position={[0, 0.9, 0.12]} scale={[0.5, 0.3, 0.4]}><sphereGeometry args={[1, 40, 24]} /><meshStandardMaterial color={palette.ribbon} roughness={0.46} /></mesh>
+          <mesh position={[0, 0.79, 0.14]} scale={[0.6, 0.05, 0.43]}><sphereGeometry args={[1, 32, 16]} /><meshStandardMaterial color={palette.accent} metalness={0.45} roughness={0.34} /></mesh>
+          <mesh position={[0.5, 0.93, 0.18]} rotation={[0, 0, -0.9]}><coneGeometry args={[0.07, 0.55, 6]} /><meshStandardMaterial color="#f7f1e3" roughness={0.6} /></mesh>
+          <mesh position={[0, 0.7, 0.53]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.085, 0.018, 10, 32]} /><meshStandardMaterial color={palette.accent} metalness={0.6} roughness={0.28} /></mesh>
+          <mesh position={[0, 0.7, 0.535]} rotation={[0, 0, Math.PI / 4]}><boxGeometry args={[0.025, 0.15, 0.012]} /><meshStandardMaterial color={palette.ribbon} /></mesh>
         </>}
-        {palette.crew === "redhair" && <>
-          {/* Red Hair crew: bare crown with Shanks-inspired diagonal scars. */}
-          {[-0.13, 0.02, 0.17].map((x, i) => <mesh key={i} position={[x, 0.18 - i * 0.055, 0.505]} rotation={[0, 0, -0.42]}><boxGeometry args={[0.035, 0.35, 0.018]} /><meshStandardMaterial color={palette.ribbon} roughness={0.6} /></mesh>)}
-          {/* Swept crimson hair tufts instead of a hat: the crossed sabres and three scars define this crew. */}
-          {[-0.34, -0.12, 0.12, 0.34].map((x, i) => <mesh key={`red-hair-tuft-${i}`} position={[x, 0.66 + (i % 2) * 0.035, 0.11]} rotation={[0, 0, (x * -0.9) - 0.12]}><coneGeometry args={[0.19, 0.42, 5]} /><meshStandardMaterial color={i % 2 ? "#c64a43" : palette.accent} roughness={0.65} /></mesh>)}
+        {palette.crew === "cinder" && <>
+          {/* Cinder Sabres: a crest of stylised flames instead of a hat, plus a smouldering brow band. */}
+          {[-0.36, -0.18, 0, 0.18, 0.36].map((x, i) => {
+            const tall = 0.62 - Math.abs(x) * 0.7;
+            return <mesh key={`flame-${i}`} position={[x, 0.66 + tall * 0.42, 0.12]} rotation={[0, 0, x * -0.55 + (i % 2 ? 0.08 : -0.08)]}>
+              <coneGeometry args={[0.15, tall, 6]} />
+              <meshStandardMaterial color={i % 2 ? "#ffb347" : palette.accent} emissive={palette.accent} emissiveIntensity={0.35} roughness={0.5} />
+            </mesh>;
+          })}
+          <mesh position={[0, 0.5, 0.2]} scale={[0.69, 0.05, 0.33]}><sphereGeometry args={[1, 40, 16]} /><meshStandardMaterial color={palette.ribbon} roughness={0.5} /></mesh>
         </>}
-        {palette.crew === "heart" && <>
-          {/* Heart Pirates: pale spotted cap with dark circular marks. */}
-          <mesh position={[0, 0.66, 0.12]} scale={[0.94, 0.17, 0.46]}><sphereGeometry args={[1, 48, 24]} /><meshStandardMaterial color={palette.accent} roughness={0.55} /></mesh>
-          <mesh position={[0, 0.83, 0.12]} scale={[0.57, 0.32, 0.38]}><sphereGeometry args={[1, 40, 24]} /><meshStandardMaterial color={palette.accent} roughness={0.5} /></mesh>
-          {[-0.42,-0.22,0,0.22,0.42].map((x, i) => <mesh key={i} position={[x, 0.78 + (1-Math.abs(x))*0.04, 0.49]}><sphereGeometry args={[0.052, 16, 12]} /><meshStandardMaterial color={palette.shadow} roughness={0.5} /></mesh>)}
-          {[-0.31,-0.1,0.1,0.31].map((x, i) => <mesh key={`cap-spot-${i}`} position={[x, 0.87, 0.45]}><sphereGeometry args={[0.034, 14, 10]} /><meshStandardMaterial color={palette.shadow} roughness={0.5} /></mesh>)}
-          <mesh position={[0, 0.68, 0.53]} scale={[0.76, 0.045, 0.025]}><sphereGeometry args={[1, 32, 16]} /><meshStandardMaterial color={palette.ribbon} /></mesh>
+        {palette.crew === "moontide" && <>
+          {/* Moontide Crew: a pale crescent rising over the skull, a tide-blue brow band and three stars. */}
+          <mesh position={[0, 0.98, 0.14]} rotation={[0, 0, -Math.PI * 1.15]}><torusGeometry args={[0.44, 0.07, 16, 72, Math.PI * 1.3]} /><meshStandardMaterial color={palette.accent} metalness={0.25} roughness={0.35} emissive={palette.accent} emissiveIntensity={0.18} /></mesh>
+          <mesh position={[0, 0.5, 0.2]} scale={[0.7, 0.05, 0.33]}><sphereGeometry args={[1, 40, 16]} /><meshStandardMaterial color={palette.ribbon} roughness={0.45} /></mesh>
+          {[[-0.62, 1.16], [0.66, 1.2], [0.02, 1.48]].map(([x, y], i) => <mesh key={`star-${i}`} position={[x, y, 0.2]} rotation={[0, 0, Math.PI / 4]}><octahedronGeometry args={[0.055, 0]} /><meshStandardMaterial color="#ffffff" emissive={palette.accent} emissiveIntensity={0.6} /></mesh>)}
         </>}
       </group>
     </Float>

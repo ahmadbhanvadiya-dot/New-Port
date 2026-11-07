@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent, MouseEvent as ReactMouseEvent } from "react";
 import dynamic from "next/dynamic";
-import { ArrowDownRight, ArrowUpRight, Github, Linkedin, Menu, X, MoveUpRight, Music } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Github, Linkedin, MoveUpRight, Music } from "lucide-react";
 import ScrollLuffy from "@/components/ScrollLuffy";
 import ScrollBackground from "@/components/ScrollBackground";
 import SoundDock from "@/components/SoundDock";
+import SiteNav from "@/components/SiteNav";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -98,12 +99,11 @@ const projects = [
 
 export default function Home() {
   const root = useRef<HTMLElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [time, setTime] = useState("--:--");
   const [copied, setCopied] = useState(false);
   const [workFilter, setWorkFilter] = useState("All work");
   const [projectIndex, setProjectIndex] = useState(0);
-  const [activeCrew, setActiveCrew] = useState("STRAW HAT PIRATES");
+  const [activeCrew, setActiveCrew] = useState("COMPASS CORSAIRS");
   const [chaosMode, setChaosMode] = useState(false);
   const [signalMode, setSignalMode] = useState(0);
   const [labPhase, setLabPhase] = useState(0);
@@ -213,7 +213,6 @@ export default function Home() {
     }
   };
 
-  const closeMenu = () => setMenuOpen(false);
 
   const moveSpotlight = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType !== "mouse") return;
@@ -293,24 +292,7 @@ export default function Home() {
       <SoundDock />
       <div className="cursor-ghost" aria-hidden="true" /><div className="cursor-word" aria-hidden="true">LOOK CLOSER <span>↗</span></div>
       <a className="skip-link" href="#main-content">Skip to content</a>
-      <header className="site-header">
-        <a href="#top" className="brand" aria-label="Ahmad Bhanvadiya home">
-          <span className="brand-mark">a<span>.</span></span>
-          <span className="brand-name">AHMAD BHANVADIYA</span>
-        </a>
-        <nav className={`nav-links ${menuOpen ? "nav-open" : ""}`} aria-label="Main navigation">
-          <a href="#work" onClick={closeMenu}>Work <span>06</span></a>
-          <a href="#about" onClick={closeMenu}>About</a>
-          <a href="#lab" onClick={closeMenu}>The lab</a>
-          <a href="#contact" onClick={closeMenu}>Contact</a>
-        </nav>
-        <div className="header-right">
-          <span className="availability"><i /> OPEN TO NEW ADVENTURES</span>
-          <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-      </header>
+      <SiteNav />
 
       <section className="hero" id="top" aria-labelledby="hero-heading">
         <div className="hero-grid" aria-hidden="true" />
