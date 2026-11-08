@@ -1787,3 +1787,137 @@ html, body {
   .nv-panel{top:62px}
 }
 @media(prefers-reduced-motion:reduce){.nv-dot::after{animation:none}.nv-bar,.nv-ind{transition:none}}
+
+/* =========================================================================
+   NAVBAR — maroon highlight so hovered links are always readable
+   ========================================================================= */
+.nv-ind{background:linear-gradient(180deg,#c23a3f,#8c1f27)!important;box-shadow:0 8px 16px -8px rgba(140,31,39,.75),0 1px 0 rgba(255,255,255,.28) inset!important}
+.nv-link.is-lit{color:#fff6e2!important}
+.nv-link.is-lit .nv-badge{background:rgba(255,246,226,.2)!important;color:#ffe3a3!important}
+.nv-link.is-lit .nv-idx{color:#ffd98a!important}
+
+/* =========================================================================
+   KINETIC LANE — drag, scroll-speed, per-phrase colours (components/KineticLane.tsx)
+   ========================================================================= */
+.kinetic-lane{cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-y;--lx:50%;--ly:50%;--lane-speed:0}
+.kinetic-lane.is-dragging{cursor:grabbing}
+.kinetic-lane .marquee-track{position:relative;z-index:2;will-change:transform;transform-origin:center}
+/* edge fade matches the gold band (it used to leak a lime tint) */
+.kinetic-lane:after{background:linear-gradient(90deg,#e9bf57,transparent 9%,transparent 91%,#e9bf57)!important;z-index:3;pointer-events:none}
+.kinetic-lane .ticker-controls{z-index:6}
+
+/* multicolour strips along the top and bottom edges */
+.lane-bar{position:absolute;left:0;right:0;height:3px;z-index:4;pointer-events:none;
+  background:repeating-linear-gradient(90deg,#b52d32 0 60px,#0d9488 60px 120px,#6d4bd8 120px 180px,#2557b8 180px 240px,#17202a 240px 300px);
+  background-size:300px 100%;animation:laneBar calc(9s - var(--lane-speed)*6s) linear infinite;opacity:.9}
+.lane-bar-top{top:0}.lane-bar-bottom{bottom:0;animation-direction:reverse}
+@keyframes laneBar{to{background-position:300px 0}}
+
+/* cursor spotlight */
+.lane-spot{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:radial-gradient(220px circle at var(--lx) var(--ly),rgba(255,255,255,.55),rgba(255,214,120,.25) 45%,transparent 72%)}
+.kinetic-lane:hover .lane-spot{opacity:1}
+
+.lane-hint{position:absolute;left:16px;bottom:7px;z-index:5;pointer-events:none;font:700 8px var(--mono);letter-spacing:.12em;color:#17202a;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s}
+.kinetic-lane:hover .lane-hint{opacity:.7;transform:none}
+
+/* each phrase gets its own colour */
+.kinetic-lane .ticker-item{position:relative;z-index:0;--ic:#b52d32;transition:color .3s,letter-spacing .3s,scale .35s cubic-bezier(.2,.8,.2,1),rotate .35s cubic-bezier(.2,.8,.2,1)}
+.kinetic-lane .ticker-item-1{--ic:#b52d32}
+.kinetic-lane .ticker-item-2{--ic:#0d9488}
+.kinetic-lane .ticker-item-3{--ic:#6d4bd8}
+.kinetic-lane .ticker-item-4{--ic:#2557b8}
+.kinetic-lane .ticker-item-5{--ic:#17202a}
+.kinetic-lane .ticker-item small,.kinetic-lane .ticker-item b{color:var(--ic)!important;transition:color .3s}
+.kinetic-lane .ticker-item:before{content:"";position:absolute;z-index:-1;inset:8px 4px;border-radius:999px;background:var(--ic);opacity:0;transform:scale(.6);transition:opacity .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
+.kinetic-lane .ticker-item:hover{scale:1.07;rotate:-2deg;color:#fff6e2!important}
+.kinetic-lane .ticker-item:nth-child(even):hover{rotate:2deg}
+.kinetic-lane .ticker-item:hover:before{opacity:1;transform:scale(1)}
+.kinetic-lane .ticker-item:hover small{color:#ffe3a3!important}
+.kinetic-lane .ticker-item:hover b{color:#ffe3a3!important;animation-duration:1s}
+.kinetic-lane .ticker-item-outline:hover{-webkit-text-stroke-color:#fff6e2!important}
+/* the dark sticker cycles through the whole palette on hover */
+.kinetic-lane .ticker-item-sticker:before{display:none}
+.kinetic-lane .ticker-item-sticker:hover{background:linear-gradient(110deg,#b52d32,#6d4bd8,#2557b8,#0d9488,#b52d32);background-size:300% 100%;animation:stickerFlow 1.6s linear infinite;color:#fff6e2!important}
+.kinetic-lane .ticker-item-sticker b{color:#e9bf57!important}
+.kinetic-lane .ticker-item-sticker:hover b{color:#fff6e2!important}
+@keyframes stickerFlow{to{background-position:300% 0}}
+.kinetic-lane.ticker-chaos{background:#6d4bd8!important}
+.kinetic-lane.ticker-chaos:after{background:linear-gradient(90deg,#6d4bd8,transparent 9%,transparent 91%,#6d4bd8)!important}
+@media(hover:none){.lane-hint{display:none}}
+@media(prefers-reduced-motion:reduce){.lane-bar{animation:none}.kinetic-lane .ticker-item:hover{scale:1;rotate:0deg}}
+
+/* =========================================================================
+   CONTACT — pirate ship that hovers on the waves and sets sail (components/ShipScene.tsx)
+   ========================================================================= */
+.contact-content{position:relative;z-index:3}
+.contact-stars{position:absolute;inset:0;z-index:0;pointer-events:none}
+.contact-stars i{position:absolute;border-radius:50%;background:#fff4df;opacity:.2;animation:starTwinkle 3.4s ease-in-out infinite}
+@keyframes starTwinkle{0%,100%{opacity:.12;transform:scale(.8)}50%{opacity:.85;transform:scale(1.35)}}
+
+.ship-stage{position:absolute;left:0;right:0;bottom:0;height:min(52vh,430px);z-index:1;pointer-events:none}
+.ship-waves{position:absolute;left:0;bottom:0;width:200%;height:150px;display:block}
+.ship-waves-back{height:170px;bottom:30px;animation:waveSlide 26s linear infinite}
+.ship-waves-mid{height:150px;bottom:12px;z-index:3;animation:waveSlide 18s linear infinite reverse}
+.ship-waves-front{height:120px;bottom:0;z-index:4;animation:waveSlide 12s linear infinite}
+@keyframes waveSlide{to{transform:translateX(-50%)}}
+
+.ship-travel{position:absolute;right:clamp(10px,7vw,130px);bottom:clamp(48px,7vh,84px);z-index:2;width:clamp(240px,29vw,440px)}
+.ship-btn{position:relative;display:block;width:100%;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+.ship-btn:focus-visible{outline:2px solid #e9bf57;outline-offset:6px;border-radius:12px}
+.ship-bob{display:block;animation:shipBob 4.8s ease-in-out infinite;transform-origin:50% 90%}
+.ship-tilt{display:block;transition:transform .7s cubic-bezier(.2,.8,.2,1);transform-origin:50% 90%}
+.ship-svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 18px 22px rgba(0,0,0,.45))}
+@keyframes shipBob{0%,100%{transform:translateY(0) rotate(-1.4deg)}50%{transform:translateY(-12px) rotate(1.6deg)}}
+
+/* hover: the ship lifts, the sails fill and it eyes the horizon */
+.ship-btn:hover .ship-bob,.ship-btn:focus-visible .ship-bob{animation-duration:2.9s}
+.ship-btn:hover .ship-tilt,.ship-btn:focus-visible .ship-tilt{transform:translateY(-16px) rotate(-3deg)}
+.ship-sail,.ship-flag{transform-box:fill-box;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.ship-sail{transform-origin:0% 50%}
+.ship-flag{transform-origin:0% 50%;animation:flagWave 2.2s ease-in-out infinite}
+@keyframes flagWave{0%,100%{transform:skewY(0) scaleX(1)}50%{transform:skewY(-4deg) scaleX(.94)}}
+.ship-btn:hover .ship-sail,.ship-btn:focus-visible .ship-sail{transform:scaleX(1.07) skewY(-1.2deg)}
+.ship-btn:hover .ship-flag{animation-duration:.9s}
+.ship-lamp{animation:lampFlicker 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.ship-lamp-2{animation-delay:-1.1s}
+@keyframes lampFlicker{0%,100%{opacity:.8;transform:scale(1)}40%{opacity:1;transform:scale(1.15)}70%{opacity:.7;transform:scale(.92)}}
+
+.ship-hint{position:absolute;left:50%;top:-6px;z-index:5;transform:translate(-50%,0);white-space:nowrap;padding:7px 13px;border-radius:999px;
+  background:rgba(23,32,42,.82);border:1px solid rgba(233,191,87,.5);color:#e9bf57;font:500 9px var(--mono);letter-spacing:.12em;
+  opacity:.0;transition:opacity .35s,transform .35s;pointer-events:none}
+.ship-btn:hover .ship-hint,.ship-btn:focus-visible .ship-hint{opacity:1;transform:translate(-50%,-8px)}
+
+/* foam wake behind the stern */
+.ship-wake{position:absolute;right:88%;bottom:17%;width:68%;height:14px;border-radius:99px;transform-origin:100% 50%;transform:scaleX(0);opacity:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55) 70%,rgba(143,208,232,.9));filter:blur(1.5px);z-index:1;pointer-events:none}
+
+/* set sail: pull back, then surge off to the right */
+.ship-stage.is-sailing .ship-travel{animation:shipSail 5.4s cubic-bezier(.6,0,.4,1) forwards}
+.ship-stage.is-sailing .ship-btn{pointer-events:none}
+.ship-stage.is-sailing .ship-tilt{transform:translateY(-6px) rotate(3.5deg)}
+.ship-stage.is-sailing .ship-bob{animation-duration:1.5s}
+.ship-stage.is-sailing .ship-sail{transform:scaleX(1.16) skewY(-2deg);transition-duration:.5s}
+.ship-stage.is-sailing .ship-flag{animation-duration:.45s}
+.ship-stage.is-sailing .ship-hint,.ship-stage.is-returning .ship-hint{opacity:0}
+.ship-stage.is-sailing .ship-wake{transform:scaleX(1);opacity:1;transition:transform 1.4s ease-out .5s,opacity .5s .4s}
+@keyframes shipSail{0%{transform:translateX(0)}13%{transform:translateX(-28px)}100%{transform:translateX(calc(100vw + 480px))}}
+
+/* sail back in from the left and drop anchor */
+.ship-stage.is-returning .ship-travel{animation:shipReturn 4.6s cubic-bezier(.15,.7,.25,1) forwards}
+.ship-stage.is-returning .ship-btn{pointer-events:none}
+.ship-stage.is-returning .ship-sail{transform:scaleX(1.1);transition-duration:2.5s}
+.ship-stage.is-returning .ship-wake{transform:scaleX(.7);opacity:.75;transition:transform 3.5s ease-out,opacity 3.5s ease-out}
+@keyframes shipReturn{0%{transform:translateX(calc(-100vw - 480px))}100%{transform:translateX(0)}}
+
+@media(max-width:900px){.ship-travel{width:clamp(220px,46vw,360px);right:2vw}}
+@media(max-width:640px){.ship-stage{height:300px}.ship-travel{bottom:44px;width:min(64vw,270px);right:-2vw}.ship-hint{display:none}}
+@media(prefers-reduced-motion:reduce){.ship-bob,.ship-flag,.ship-lamp,.ship-waves,.contact-stars i{animation:none!important}.ship-stage.is-sailing .ship-travel,.ship-stage.is-returning .ship-travel{animation-duration:.01ms!important}}
+
+/* ---- fixes: hint sits above the flag; chaos button keeps its size; fuller hover pill ---- */
+.ship-hint{top:-34px!important}
+.ship-btn:hover .ship-hint,.ship-btn:focus-visible .ship-hint{transform:translate(-50%,-6px)!important}
+.kinetic-lane .ticker-controls{top:50%;bottom:auto;height:auto}
+.kinetic-lane .ticker-flash{height:46px!important;min-height:0!important;min-width:54px!important;padding:5px 12px!important;white-space:nowrap}
+.kinetic-lane .ticker-flash small{white-space:nowrap;writing-mode:horizontal-tb}
+.kinetic-lane .ticker-item:before{inset:-2px 2px}

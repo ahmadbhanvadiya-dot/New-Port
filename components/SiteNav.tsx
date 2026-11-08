@@ -32,11 +32,15 @@ export default function SiteNav() {
   const measure = useCallback(() => {
     const index = LINKS.findIndex((l) => l.id === lit);
     const el = index >= 0 ? linkRefs.current[index] : null;
-    if (!el) {
+    const list = listRef.current;
+    if (!el || !list) {
       setIndicator((prev) => (prev.visible ? { ...prev, visible: false } : prev));
       return;
     }
-    setIndicator({ left: el.offsetLeft, width: el.offsetWidth, visible: true });
+    // Measure against the list itself (offsetLeft is relative to each <li>, which would be ~0).
+    const listRect = list.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
+    setIndicator({ left: rect.left - listRect.left, width: rect.width, visible: true });
   }, [lit]);
 
   useLayoutEffect(() => {

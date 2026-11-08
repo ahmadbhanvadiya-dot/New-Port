@@ -8,6 +8,8 @@ import ScrollLuffy from "@/components/ScrollLuffy";
 import ScrollBackground from "@/components/ScrollBackground";
 import SoundDock from "@/components/SoundDock";
 import SiteNav from "@/components/SiteNav";
+import KineticLane from "@/components/KineticLane";
+import ShipScene from "@/components/ShipScene";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -103,8 +105,9 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [workFilter, setWorkFilter] = useState("All work");
   const [projectIndex, setProjectIndex] = useState(0);
-  const [activeCrew, setActiveCrew] = useState("STRAW HAT PIRATES");
+  const [activeCrew, setActiveCrew] = useState("COMPASS CORSAIRS");
   const [chaosMode, setChaosMode] = useState(false);
+  const [sailSignal, setSailSignal] = useState(0);
   const [signalMode, setSignalMode] = useState(0);
   const [labPhase, setLabPhase] = useState(0);
   const [quipIndex, setQuipIndex] = useState(0);
@@ -183,9 +186,6 @@ export default function Home() {
         });
       });
 
-      gsap.to(".marquee-track", {
-        xPercent: -50, duration: 22, ease: "none", repeat: -1
-      });
       gsap.to(".orbit-ring", {
         rotate: 360, duration: 32, ease: "none", repeat: -1
       });
@@ -207,6 +207,7 @@ export default function Home() {
     try {
       await navigator.clipboard.writeText("bhanvadiyaahmad@gmail.com");
       setCopied(true);
+      setSailSignal((n) => n + 1);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
       window.location.href = "mailto:bhanvadiyaahmad@gmail.com";
@@ -336,32 +337,7 @@ export default function Home() {
       </section>
 
 
-      <section className={`ticker ${chaosMode ? "ticker-chaos" : ""}`} aria-label="Ideas in motion">
-        <div className="marquee-track">
-          {[0, 1].map((set) => (
-            <div className="ticker-set" key={set} aria-hidden={set === 1 ? "true" : undefined}>
-              <span className="ticker-item ticker-item-1"><small>01</small> CHASE THE DREAM <b>✳</b></span>
-              <span className="ticker-item ticker-item-outline ticker-item-2"><small>02</small> SAIL BEYOND THE MAP <b>✳</b></span>
-              <span className="ticker-item ticker-item-3"><small>03</small> STAY HUMBLE, NAKAMA <b>☻</b></span>
-              <span className="ticker-item ticker-item-outline ticker-item-4"><small>04</small> FIND YOUR ALL BLUE <b>✳</b></span>
-              <span className="ticker-item ticker-item-sticker ticker-item-5">JUST A HUMAN WITH A KEYBOARD & A DREAM <b>↗</b></span>
-            </div>
-          ))}
-        </div>
-        <div className="ticker-controls">
-          <button
-            className="ticker-flash"
-            type="button"
-            aria-label={chaosMode ? "Turn off chaos mode" : "Turn on chaos mode"}
-            aria-pressed={chaosMode}
-            onClick={() => setChaosMode((value) => !value)}
-            title={chaosMode ? "Tame the chaos" : "Turn up the chaos"}
-          >
-            <span>{chaosMode ? "−" : "✳"}</span>
-            <small>{chaosMode ? "TAME IT" : "MORE CHAOS"}</small>
-          </button>
-        </div>
-      </section>
+      <KineticLane chaos={chaosMode} onToggleChaos={() => setChaosMode((value) => !value)} />
 
       <section className="work-section section-pad" id="work">
         <div className="section-heading" data-reveal>
@@ -518,6 +494,7 @@ export default function Home() {
         onPointerMove={handleContactMove}
         onPointerLeave={handleContactLeave}
       >
+        <ShipScene sailSignal={sailSignal} />
         <div className="contact-orbit orbit-ring" aria-hidden="true"><span>THE NEXT ADVENTURE STARTS HERE ✳ THE NEXT ADVENTURE STARTS HERE ✳</span></div>
         <div className="contact-content" data-reveal>
           <span className="eyebrow">04 / YOUR NEXT ADVENTURE</span>
