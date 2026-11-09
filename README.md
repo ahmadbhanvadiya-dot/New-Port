@@ -1,6 +1,6 @@
 # Ahmad Bhanvadiya — Portfolio
 
-A scroll-driven, pirate-map-themed developer portfolio built with **Next.js**, **React Three Fiber** and **GSAP**, deployed on **Cloudflare Workers**.
+A scroll-driven, One Piece-themed developer portfolio built with **Next.js**, **React Three Fiber** and **GSAP**, deployed on **Cloudflare Workers**.
 
 **Live:** https://new-portfolio.ahmadbhanvadiya.workers.dev/
 
