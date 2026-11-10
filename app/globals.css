@@ -1924,7 +1924,7 @@ html, body {
 
 
 /* =========================================================================
-   GRAND LINE SKILL BOUNTY ARCHIVE (V31)
+   GRAND LINE SKILL BOUNTY ARCHIVE (V2 POLISH)
    ========================================================================= */
 
 .bounty-archive-chamber {
@@ -1944,6 +1944,8 @@ html, body {
   isolation: isolate;
   overflow: hidden;
   outline: none;
+  --map-shift-x: 0px;
+  --map-shift-y: 0px;
 }
 
 .bounty-archive-chamber:focus-visible {
@@ -1966,16 +1968,47 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: translate(var(--map-shift-x, 0px), var(--map-shift-y, 0px));
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .bounty-compass-rose {
   transform-origin: 720px 420px;
-  animation: compassSlowDrift 90s linear infinite;
+  animation: compassSlowDrift 110s linear infinite;
 }
 
 @keyframes compassSlowDrift {
   from { transform: translate(720px, 420px) rotate(0deg); }
   to { transform: translate(720px, 420px) rotate(360deg); }
+}
+
+.compass-golden-aura {
+  animation: compassAuraGlow 5s ease-in-out infinite alternate;
+}
+
+@keyframes compassAuraGlow {
+  0% { opacity: 0.65; transform: scale(0.97); }
+  100% { opacity: 1; transform: scale(1.04); }
+}
+
+.compass-needle-animated {
+  transform-origin: 0px 0px;
+  animation: compassNeedleOscillate 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes compassNeedleOscillate {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  75% { transform: rotate(-6deg); }
+}
+
+.grand-line-voyage {
+  animation: routeVoyageFlow 24s linear infinite;
+}
+
+@keyframes routeVoyageFlow {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -120; }
 }
 
 /* Floating Gold Particles */
@@ -2044,17 +2077,17 @@ html, body {
 }
 
 .signal-ruby-beacon {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #8b1e22;
-  box-shadow: 0 0 0 3px rgba(139, 30, 34, 0.2), 0 0 10px rgba(139, 30, 34, 0.6);
+  background: radial-gradient(circle at 35% 35%, #ff4b50, #8b1e22 80%);
+  box-shadow: 0 0 0 3px rgba(139, 30, 34, 0.2), 0 0 12px rgba(139, 30, 34, 0.75);
   animation: rubyBeaconPulse 2s ease-in-out infinite;
 }
 
 @keyframes rubyBeaconPulse {
-  0%, 100% { opacity: 0.7; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 0 6px rgba(139, 30, 34, 0.3), 0 0 16px rgba(139, 30, 34, 0.85); }
+  0%, 100% { opacity: 0.75; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 0 6px rgba(139, 30, 34, 0.25), 0 0 18px rgba(139, 30, 34, 0.9); }
 }
 
 .topbar-divider {
@@ -2075,7 +2108,7 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 4px 12px;
+  padding: 4px 14px;
   background: rgba(139, 30, 34, 0.08);
   border: 1px solid rgba(139, 30, 34, 0.3);
   border-radius: 20px;
@@ -2104,13 +2137,21 @@ html, body {
 }
 
 .bounty-tally-number {
-  padding: 4px 10px;
+  position: relative;
+  padding: 4px 12px;
   border-radius: 4px;
-  background: #231210;
+  background: linear-gradient(135deg, #1f1411 0%, #2e1d17 100%);
+  border: 1px solid rgba(203, 164, 76, 0.45);
   color: #e9bf57;
   font-size: 11px;
   letter-spacing: 0.08em;
-  box-shadow: 0 2px 6px rgba(35, 18, 16, 0.25);
+  box-shadow: 0 3px 8px rgba(35, 18, 16, 0.25), inset 0 1px 1px rgba(233, 191, 87, 0.25);
+  animation: fleetValueGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes fleetValueGlow {
+  0% { box-shadow: 0 3px 8px rgba(35, 18, 16, 0.25); }
+  100% { box-shadow: 0 3px 12px rgba(203, 164, 76, 0.35), 0 0 8px rgba(203, 164, 76, 0.2); }
 }
 
 /* Stage Viewport: Dual-Presence Layout */
@@ -2118,10 +2159,10 @@ html, body {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: auto minmax(320px, 460px) minmax(360px, 1fr) auto;
+  grid-template-columns: auto minmax(360px, 510px) minmax(380px, 1fr) auto;
   align-items: center;
-  gap: clamp(16px, 2.8vw, 36px);
-  min-height: 560px;
+  gap: clamp(18px, 3vw, 40px);
+  min-height: 580px;
 }
 
 /* Navigation Dials */
@@ -2206,11 +2247,11 @@ html, body {
   transform: scale(0.94);
 }
 
-/* 3D Wanted Poster Container */
+/* 3D Wanted Poster Container - Increased by ~15-20% */
 .bounty-poster-container {
   position: relative;
   width: 100%;
-  max-width: 440px;
+  max-width: 490px;
   margin: 0 auto;
   aspect-ratio: 3 / 4.4;
   perspective: 1200px;
@@ -2221,42 +2262,54 @@ html, body {
   --glint-x: 50%;
   --glint-y: 35%;
   --shadow-x: 0px;
-  --shadow-y: 26px;
+  --shadow-y: 30px;
 }
 
 .bounty-poster-container:active {
   cursor: grabbing;
 }
 
-/* Stacked Underlayers (physical paper thickness) */
+/* Stacked Underlayers (convincing physical paper thickness & depth) */
 .poster-stack-underlayer {
   position: absolute;
   inset: 6px;
-  border-radius: 3px;
-  background: #ebd8b2;
-  border: 1px solid rgba(139, 30, 34, 0.16);
+  border-radius: 4px;
+  border: 1px solid rgba(139, 30, 34, 0.18);
   pointer-events: none;
-  transition: transform 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
 }
 
 .underlayer-1 {
-  transform: rotate(-2.2deg) translateZ(-12px);
-  box-shadow: 0 10px 25px rgba(45, 20, 15, 0.1);
-  background: #e4cfa7;
+  transform: rotate(-2.4deg) translateZ(-12px);
+  box-shadow: -4px 12px 28px rgba(45, 20, 15, 0.12);
+  background: #e6d3ad;
 }
 
 .underlayer-2 {
-  transform: rotate(1.8deg) translateZ(-24px);
-  box-shadow: 0 18px 35px rgba(45, 20, 15, 0.08);
-  background: #deb68e;
+  transform: rotate(2.2deg) translateZ(-24px);
+  box-shadow: 6px 18px 36px rgba(45, 20, 15, 0.1);
+  background: #deb992;
+}
+
+.underlayer-3 {
+  transform: rotate(-1.4deg) translateZ(-36px);
+  box-shadow: 0 24px 44px rgba(45, 20, 15, 0.08);
+  background: #d4af82;
 }
 
 .bounty-poster-container:hover .underlayer-1 {
-  transform: rotate(-3.5deg) translateZ(-16px);
+  transform: rotate(-3.8deg) translateZ(-16px);
+  box-shadow: -6px 16px 34px rgba(45, 20, 15, 0.16);
 }
 
 .bounty-poster-container:hover .underlayer-2 {
-  transform: rotate(2.8deg) translateZ(-30px);
+  transform: rotate(3.2deg) translateZ(-30px);
+  box-shadow: 8px 22px 42px rgba(45, 20, 15, 0.13);
+}
+
+.bounty-poster-container:hover .underlayer-3 {
+  transform: rotate(-2.2deg) translateZ(-44px);
+  box-shadow: 0 28px 50px rgba(45, 20, 15, 0.11);
 }
 
 /* Active 3D Wanted Poster Card */
@@ -2267,9 +2320,9 @@ html, body {
   transform-style: preserve-3d;
   transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(10px);
   box-shadow: 
-    var(--shadow-x) var(--shadow-y) 55px rgba(45, 20, 15, 0.32),
-    0 4px 15px rgba(45, 20, 15, 0.16),
-    0 0 0 1px rgba(139, 30, 34, 0.22);
+    var(--shadow-x) var(--shadow-y) 58px rgba(45, 20, 15, 0.34),
+    0 8px 24px rgba(45, 20, 15, 0.18),
+    0 0 0 1px rgba(139, 30, 34, 0.24);
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
   will-change: transform, box-shadow;
   animation: posterDeckBreathe 7s ease-in-out infinite alternate;
@@ -2286,20 +2339,20 @@ html, body {
 
 /* Card Flip Transitions */
 .bounty-poster-card.flip-next {
-  animation: bountyFlipNext 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: bountyFlipNext 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .bounty-poster-card.flip-prev {
-  animation: bountyFlipPrev 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: bountyFlipPrev 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes bountyFlipNext {
-  0% { opacity: 0; transform: perspective(1200px) translateX(36px) rotateY(-18deg) scale(0.92); filter: blur(5px); }
+  0% { opacity: 0; transform: perspective(1200px) translateX(32px) rotateY(-16deg) scale(0.94); filter: blur(4px); }
   100% { opacity: 1; transform: perspective(1200px) translateX(0) rotateY(0deg) scale(1); filter: blur(0); }
 }
 
 @keyframes bountyFlipPrev {
-  0% { opacity: 0; transform: perspective(1200px) translateX(-36px) rotateY(18deg) scale(0.92); filter: blur(5px); }
+  0% { opacity: 0; transform: perspective(1200px) translateX(-32px) rotateY(16deg) scale(0.94); filter: blur(4px); }
   100% { opacity: 1; transform: perspective(1200px) translateX(0) rotateY(0deg) scale(1); filter: blur(0); }
 }
 
@@ -2315,6 +2368,48 @@ html, body {
   border-radius: 4px;
   overflow: hidden;
   box-shadow: inset 0 0 25px rgba(110, 70, 30, 0.18);
+}
+
+/* Gold Corner Ornaments */
+.gold-corner-ornament {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0.85;
+}
+
+.corner-tl {
+  top: 4px;
+  left: 4px;
+  border-top: 2px solid #d4af37;
+  border-left: 2px solid #d4af37;
+  border-top-left-radius: 2px;
+}
+
+.corner-tr {
+  top: 4px;
+  right: 4px;
+  border-top: 2px solid #d4af37;
+  border-right: 2px solid #d4af37;
+  border-top-right-radius: 2px;
+}
+
+.corner-bl {
+  bottom: 4px;
+  left: 4px;
+  border-bottom: 2px solid #d4af37;
+  border-left: 2px solid #d4af37;
+  border-bottom-left-radius: 2px;
+}
+
+.corner-br {
+  bottom: 4px;
+  right: 4px;
+  border-bottom: 2px solid #d4af37;
+  border-right: 2px solid #d4af37;
+  border-bottom-right-radius: 2px;
 }
 
 .poster-artwork-mat {
@@ -2344,7 +2439,7 @@ html, body {
   pointer-events: none;
   border-radius: 4px;
   background: radial-gradient(
-    circle 380px at var(--glint-x) var(--glint-y),
+    circle 400px at var(--glint-x) var(--glint-y),
     rgba(255, 255, 255, 0.48) 0%,
     rgba(255, 248, 220, 0.18) 32%,
     transparent 65%
@@ -2362,13 +2457,13 @@ html, body {
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #fff1cf, #cba44c 60%, #5d4315 100%);
   box-shadow: 0 1px 3px rgba(35, 18, 16, 0.5), inset 0 0 1px rgba(0, 0, 0, 0.4);
-  z-index: 6;
+  z-index: 7;
 }
 
-.rivet-tl { top: 6px; left: 6px; }
-.rivet-tr { top: 6px; right: 6px; }
-.rivet-bl { bottom: 6px; left: 6px; }
-.rivet-br { bottom: 6px; right: 6px; }
+.rivet-tl { top: 7px; left: 7px; }
+.rivet-tr { top: 7px; right: 7px; }
+.rivet-bl { bottom: 7px; left: 7px; }
+.rivet-br { bottom: 7px; right: 7px; }
 
 /* Marine Embossed Wax / Ink Stamp */
 .poster-marine-seal {
@@ -2376,13 +2471,13 @@ html, body {
   bottom: 16px;
   right: 16px;
   z-index: 7;
-  width: 72px;
-  height: 72px;
+  width: 74px;
+  height: 74px;
   border-radius: 50%;
   background: rgba(181, 45, 50, 0.92);
   border: 2px dashed rgba(255, 248, 220, 0.7);
   box-shadow: 
-    0 4px 12px rgba(139, 30, 34, 0.4),
+    0 4px 14px rgba(139, 30, 34, 0.42),
     inset 0 0 10px rgba(0, 0, 0, 0.25);
   display: grid;
   place-items: center;
@@ -2390,6 +2485,12 @@ html, body {
   pointer-events: none;
   mix-blend-mode: multiply;
   transition: transform 0.35s ease;
+  animation: marineStampImpact 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes marineStampImpact {
+  0% { transform: rotate(-24deg) scale(1.3) translateZ(40px); opacity: 0; }
+  100% { transform: rotate(-14deg) scale(1) translateZ(28px); opacity: 1; }
 }
 
 .bounty-poster-card:hover .poster-marine-seal {
@@ -2449,19 +2550,19 @@ html, body {
     linear-gradient(180deg, #f8f3e9 0%, #ede3ce 100%);
   border: 1.5px solid rgba(139, 30, 34, 0.28);
   border-radius: 4px;
-  padding: 24px 26px;
+  padding: 26px 28px;
   box-shadow: 
-    0 16px 40px rgba(45, 20, 15, 0.08),
+    0 18px 45px rgba(45, 20, 15, 0.09),
     inset 0 0 0 1px rgba(255, 255, 255, 0.7);
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  animation: dossierReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  gap: 18px;
+  animation: dossierReveal 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes dossierReveal {
-  0% { opacity: 0; transform: translateY(12px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translateX(18px) scale(0.98); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 .dossier-header {
@@ -2480,23 +2581,23 @@ html, body {
 }
 
 .dossier-badge-threat {
-  font: 800 8.5px/1 var(--mono);
+  font: 800 9px/1 var(--mono);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  padding: 3px 8px;
+  padding: 3.5px 9px;
   border: 1.2px solid;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.7);
 }
 
 .dossier-archive-ref {
-  font: 700 9px/1 var(--mono);
+  font: 700 9.5px/1 var(--mono);
   letter-spacing: 0.1em;
   color: #68574c;
 }
 
 .dossier-category-pill {
-  font: 700 8.5px/1 var(--mono);
+  font: 700 9px/1 var(--mono);
   letter-spacing: 0.12em;
   color: #8b1e22;
   text-transform: uppercase;
@@ -2513,7 +2614,7 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font: 700 10.5px/1.2 var(--mono);
+  font: 700 11px/1.2 var(--mono);
   letter-spacing: 0.14em;
   color: #8b1e22;
   text-transform: uppercase;
@@ -2525,33 +2626,48 @@ html, body {
 }
 
 .dossier-title {
-  font: 700 clamp(30px, 3.2vw, 42px)/1 var(--sans);
-  letter-spacing: -0.05em;
+  font: 700 clamp(32px, 3.4vw, 44px)/1 var(--sans);
+  letter-spacing: -0.04em;
   color: #231210;
-  margin: 2px 0 0;
+  margin: 3px 0 0;
 }
 
 .dossier-role-lede {
-  font: 500 13px/1.5 var(--sans);
-  color: #5d4940;
+  font: 500 13.5px/1.5 var(--sans);
+  color: #554136;
   margin: 0;
 }
 
 /* Berry Bounty Plaque */
 .dossier-bounty-plaque {
-  padding: 12px 16px;
-  background: 
-    linear-gradient(90deg, #1f1411 0%, #2e1d17 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 14px 18px;
+  background: linear-gradient(90deg, #1f1411 0%, #2e1d17 100%);
   border: 1px solid #cba44c;
   border-radius: 4px;
   box-shadow: 0 6px 18px rgba(35, 18, 16, 0.22);
+}
+
+.bounty-plaque-shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 20%, rgba(247, 210, 109, 0.2) 50%, transparent 80%);
+  background-size: 200% 100%;
+  animation: plaqueShimmer 4s ease-in-out infinite;
+}
+
+@keyframes plaqueShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .bounty-plaque-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font: 700 8px/1 var(--mono);
+  font: 700 8.5px/1 var(--mono);
   letter-spacing: 0.16em;
   color: #d4af37;
   margin-bottom: 6px;
@@ -2565,14 +2681,14 @@ html, body {
 
 .berry-symbol {
   font-family: Georgia, serif;
-  font-size: 24px;
+  font-size: 25px;
   font-weight: 700;
   color: #f7d26d;
   text-shadow: 0 0 12px rgba(247, 210, 109, 0.5);
 }
 
 .bounty-digits {
-  font: 800 clamp(22px, 2.6vw, 32px)/1 var(--mono);
+  font: 800 clamp(24px, 2.8vw, 34px)/1 var(--mono);
   letter-spacing: 0.04em;
   color: #fff5df;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
@@ -2593,15 +2709,15 @@ html, body {
 }
 
 .intel-field-label {
-  font: 700 8px/1 var(--mono);
+  font: 700 9px/1 var(--mono);
   letter-spacing: 0.14em;
   color: #8b1e22;
   text-transform: uppercase;
 }
 
 .dossier-description {
-  font: 400 12.5px/1.65 var(--sans);
-  color: #402f27;
+  font: 400 13px/1.65 var(--sans);
+  color: #3b2820;
   margin: 0;
 }
 
@@ -2622,7 +2738,7 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
+  padding: 4px 11px;
   background: rgba(242, 235, 220, 0.9);
   border: 1px solid rgba(139, 30, 34, 0.22);
   border-radius: 3px;
@@ -2648,6 +2764,44 @@ html, body {
 
 .dossier-chip:hover .chip-spark {
   color: #ffe89e;
+}
+
+/* Animated Verification Seal */
+.dossier-verification-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  background: rgba(139, 30, 34, 0.05);
+  border: 1px dashed rgba(139, 30, 34, 0.35);
+  border-radius: 20px;
+  width: fit-content;
+  font: 700 8.5px/1 var(--mono);
+  letter-spacing: 0.14em;
+  color: #8b1e22;
+  animation: sealVerifyPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes sealVerifyPop {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.verification-ring {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #059669;
+  box-shadow: 0 0 6px rgba(5, 150, 105, 0.5);
+}
+
+.verification-check {
+  font-weight: 800;
+  color: #059669;
+}
+
+.verification-text {
+  text-transform: uppercase;
 }
 
 /* Dossier Footer */
@@ -2681,6 +2835,23 @@ html, body {
   font: 700 8px/1 var(--mono);
   letter-spacing: 0.1em;
   color: #796658;
+}
+
+/* Light Sweep Reflection Across Chamber */
+.archive-light-sweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(115deg, transparent 0%, transparent 42%, rgba(255, 255, 255, 0.24) 50%, transparent 58%, transparent 100%);
+  background-size: 250% 100%;
+  animation: lightSweepAcross 14s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+@keyframes lightSweepAcross {
+  0% { background-position: -250% 0; }
+  100% { background-position: 250% 0; }
 }
 
 /* Bottom Interactive Grand Line Route Nav */
@@ -2763,7 +2934,7 @@ html, body {
   box-shadow: 0 0 8px rgba(203, 164, 76, 0.5);
 }
 
-/* Route Waypoint Buttons */
+/* Route Waypoint - Collectible Archive Seals */
 .route-waypoint {
   position: relative;
   z-index: 2;
@@ -2779,14 +2950,14 @@ html, body {
 
 .waypoint-pin {
   position: relative;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: #f5eedf;
+  background: radial-gradient(circle at 35% 35%, #faf5ec, #ebdeca 70%, #d8c4a5 100%);
   border: 1.5px solid rgba(139, 30, 34, 0.35);
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 10px rgba(45, 20, 15, 0.1);
+  box-shadow: 0 4px 10px rgba(45, 20, 15, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.8);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -2799,32 +2970,34 @@ html, body {
 .route-waypoint:hover .waypoint-pin {
   transform: translateY(-4px) scale(1.12);
   border-color: #8b1e22;
-  box-shadow: 0 8px 18px rgba(139, 30, 34, 0.25);
+  box-shadow: 0 8px 20px rgba(139, 30, 34, 0.28), 0 0 0 2px rgba(203, 164, 76, 0.3);
 }
 
 .route-waypoint:hover .waypoint-core {
   color: #8b1e22;
 }
 
-/* Active Waypoint State */
+/* Active Waypoint State - Collectible Gold / Red Wax Seal */
 .route-waypoint.is-active .waypoint-pin {
-  background: #8b1e22;
-  border-color: #cba44c;
+  background: radial-gradient(circle at 35% 35%, #a82429, #7d171b 80%, #520e10 100%);
+  border-color: #e9bf57;
   transform: translateY(-5px) scale(1.22);
   box-shadow: 
-    0 10px 24px rgba(139, 30, 34, 0.4),
-    0 0 0 3px rgba(203, 164, 76, 0.45);
+    0 10px 24px rgba(139, 30, 34, 0.45),
+    0 0 0 2.5px rgba(203, 164, 76, 0.65),
+    0 0 16px rgba(233, 191, 87, 0.4);
 }
 
 .route-waypoint.is-active .waypoint-core {
   color: #fff5df;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .waypoint-pulse {
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  border: 1.5px solid rgba(139, 30, 34, 0.6);
+  border: 1.5px solid rgba(203, 164, 76, 0.7);
   animation: waypointPulseRing 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
@@ -2841,7 +3014,7 @@ html, body {
   transform: translateX(-50%) translateY(4px);
   background: #231210;
   color: #fff4df;
-  padding: 5px 9px;
+  padding: 6px 10px;
   border-radius: 3px;
   border: 1px solid #cba44c;
   white-space: nowrap;
@@ -2849,7 +3022,7 @@ html, body {
   opacity: 0;
   visibility: hidden;
   transition: all 0.25s ease;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2886,7 +3059,7 @@ html, body {
 /* ── RESPONSIVE ADAPTATIONS ── */
 @media (max-width: 1080px) {
   .bounty-stage-viewport {
-    grid-template-columns: auto minmax(280px, 400px) 1fr auto;
+    grid-template-columns: auto minmax(300px, 420px) 1fr auto;
     gap: 20px;
   }
 }
@@ -2906,7 +3079,7 @@ html, body {
   }
 
   .bounty-poster-container {
-    max-width: 360px;
+    max-width: 380px;
   }
 
   .route-hint-instruction {
@@ -2927,7 +3100,7 @@ html, body {
   }
 
   .bounty-poster-container {
-    max-width: 300px;
+    max-width: 310px;
   }
 
   .dossier-title {
@@ -2943,8 +3116,8 @@ html, body {
   }
 
   .waypoint-pin {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
   }
 
   .waypoint-core {
@@ -2958,9 +3131,16 @@ html, body {
 
 @media (prefers-reduced-motion: reduce) {
   .bounty-compass-rose,
+  .compass-golden-aura,
+  .compass-needle-animated,
+  .grand-line-voyage,
   .gold-particle,
   .bounty-poster-card,
+  .poster-marine-seal,
   .signal-ruby-beacon,
+  .bounty-tally-number,
+  .bounty-plaque-shimmer,
+  .archive-light-sweep,
   .waypoint-pulse {
     animation: none !important;
   }

@@ -25,7 +25,7 @@ export const SKILL_POSTERS: SkillPosterData[] = [
     id: "react",
     name: "React",
     src: "/posters/react.webp",
-    bounty: "฿1,500,000,000",
+    bounty: "₿1,500,000,000",
     code: "GL-DOC // 01-RC",
     category: "SHIPWRIGHT ENGINEERING",
     epithet: "UI ARCHITECT",
@@ -41,7 +41,7 @@ export const SKILL_POSTERS: SkillPosterData[] = [
     id: "typescript",
     name: "TypeScript",
     src: "/posters/typescript.webp",
-    bounty: "฿1,000,000,000",
+    bounty: "₿1,000,000,000",
     code: "GL-DOC // 02-TS",
     category: "CIPHER POL INTELLIGENCE",
     epithet: "STRICT COMPILER",
@@ -57,7 +57,7 @@ export const SKILL_POSTERS: SkillPosterData[] = [
     id: "nextjs",
     name: "Next.js",
     src: "/posters/nextjs.webp",
-    bounty: "฿1,200,000,000",
+    bounty: "₿1,200,000,000",
     code: "GL-DOC // 03-NX",
     category: "GRAND LINE NAVIGATION",
     epithet: "SPEED VESSEL",
@@ -73,7 +73,7 @@ export const SKILL_POSTERS: SkillPosterData[] = [
     id: "python",
     name: "Python",
     src: "/posters/python.webp",
-    bounty: "฿900,000,000",
+    bounty: "₿900,000,000",
     code: "GL-DOC // 04-PY",
     category: "DEVIL FRUIT RESEARCH",
     epithet: "DATA MYSTIC",
@@ -89,7 +89,7 @@ export const SKILL_POSTERS: SkillPosterData[] = [
     id: "supabase",
     name: "Supabase",
     src: "/posters/supabase.webp",
-    bounty: "฿800,000,000",
+    bounty: "₿800,000,000",
     code: "GL-DOC // 05-SB",
     category: "OCEAN VAULT ARCHIVE",
     epithet: "DATA HARBOR",
@@ -105,7 +105,7 @@ export const SKILL_POSTERS: SkillPosterData[] = [
     id: "flutter",
     name: "Flutter",
     src: "/posters/flutter.webp",
-    bounty: "฿750,000,000",
+    bounty: "₿750,000,000",
     code: "GL-DOC // 06-FL",
     category: "CREW EQUIPMENT RIGGING",
     epithet: "CANVAS SHAPER",
@@ -124,14 +124,17 @@ export default function SkillBountyArchive() {
   const [flipDirection, setFlipDirection] = useState<"next" | "prev">("next");
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [transitionKey, setTransitionKey] = useState(0);
 
   const posterStageRef = useRef<HTMLDivElement | null>(null);
+  const chamberRef = useRef<HTMLDivElement | null>(null);
   const touchStartXRef = useRef<number | null>(null);
   const mousePosRef = useRef({ x: 0, y: 0 });
   const rafIdRef = useRef<number | null>(null);
+  const mapRafIdRef = useRef<number | null>(null);
 
   const activePoster = SKILL_POSTERS[activeIdx];
-  const totalBounties = "฿6,150,000,000";
+  const totalBounties = "₿6,150,000,000";
 
   // Change active poster with directional flip animation
   const goToPoster = useCallback((newIdx: number, dir?: "next" | "prev") => {
@@ -143,6 +146,7 @@ export default function SkillBountyArchive() {
       setFlipDirection(normalized >= activeIdx ? "next" : "prev");
     }
     setActiveIdx(normalized);
+    setTransitionKey((k) => k + 1);
   }, [activeIdx]);
 
   const handleNext = useCallback(() => {
@@ -167,10 +171,10 @@ export default function SkillBountyArchive() {
         rafIdRef.current = null;
         if (!posterStageRef.current) return;
         const { x: curX, y: curY } = mousePosRef.current;
-        const tiltX = (0.5 - curY) * 16;
-        const tiltY = (curX - 0.5) * 18;
-        const shadowX = (0.5 - curX) * 28;
-        const shadowY = (0.5 - curY) * 32 + 26;
+        const tiltX = (0.5 - curY) * 18;
+        const tiltY = (curX - 0.5) * 20;
+        const shadowX = (0.5 - curX) * 32;
+        const shadowY = (0.5 - curY) * 36 + 30;
 
         posterStageRef.current.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
         posterStageRef.current.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
@@ -180,6 +184,21 @@ export default function SkillBountyArchive() {
         posterStageRef.current.style.setProperty("--shadow-y", `${shadowY.toFixed(1)}px`);
       });
     }
+  };
+
+  // Subtle parallax on the background map when cursor moves inside the chamber
+  const handleChamberMouseMove = (e: ReactMouseEvent<HTMLDivElement>) => {
+    if (!chamberRef.current) return;
+    if (mapRafIdRef.current !== null) return;
+    mapRafIdRef.current = requestAnimationFrame(() => {
+      mapRafIdRef.current = null;
+      if (!chamberRef.current) return;
+      const rect = chamberRef.current.getBoundingClientRect();
+      const nx = (e.clientX - rect.left) / rect.width - 0.5;
+      const ny = (e.clientY - rect.top) / rect.height - 0.5;
+      chamberRef.current.style.setProperty("--map-shift-x", `${(nx * -12).toFixed(1)}px`);
+      chamberRef.current.style.setProperty("--map-shift-y", `${(ny * -8).toFixed(1)}px`);
+    });
   };
 
   const handlePointerEnter = () => {
@@ -194,7 +213,7 @@ export default function SkillBountyArchive() {
     posterStageRef.current.style.setProperty("--glint-x", "50%");
     posterStageRef.current.style.setProperty("--glint-y", "35%");
     posterStageRef.current.style.setProperty("--shadow-x", "0px");
-    posterStageRef.current.style.setProperty("--shadow-y", "26px");
+    posterStageRef.current.style.setProperty("--shadow-y", "30px");
   };
 
   // Keyboard navigation
@@ -233,14 +252,19 @@ export default function SkillBountyArchive() {
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
       }
+      if (mapRafIdRef.current !== null) {
+        cancelAnimationFrame(mapRafIdRef.current);
+      }
     };
   }, []);
 
   return (
     <div
       className="bounty-archive-chamber"
+      ref={chamberRef}
       tabIndex={0}
       onKeyDown={handleKeyDown}
+      onMouseMove={handleChamberMouseMove}
       role="region"
       aria-label="One Piece Grand Line Skill Bounty Archive"
     >
@@ -264,6 +288,11 @@ export default function SkillBountyArchive() {
             <radialGradient id="compassGold" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#e9bf57" stopOpacity="0.35" />
               <stop offset="100%" stopColor="#8b1e22" stopOpacity="0.05" />
+            </radialGradient>
+            <radialGradient id="compassGoldenGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#f7d26d" stopOpacity="0.25" />
+              <stop offset="60%" stopColor="#e9bf57" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="transparent" stopOpacity="0" />
             </radialGradient>
             {/* Marine Seal Pattern */}
             <pattern id="nauticalGrid" width="120" height="120" patternUnits="userSpaceOnUse">
@@ -326,6 +355,8 @@ export default function SkillBountyArchive() {
 
           {/* Center Ornate Compass Rose */}
           <g className="bounty-compass-rose" transform="translate(720, 420)">
+            {/* Golden Glow Circle */}
+            <circle r="240" fill="url(#compassGoldenGlow)" className="compass-golden-aura" />
             {/* Outer Degrees Ring */}
             <circle r="220" fill="none" stroke="#8b1e22" strokeWidth="0.8" strokeOpacity="0.12" />
             <circle r="208" fill="none" stroke="#cba44c" strokeWidth="1" strokeOpacity="0.18" strokeDasharray="2 6" />
@@ -349,6 +380,15 @@ export default function SkillBountyArchive() {
             <polygon points="-120,-120 -70,-50 -50,-50 -50,-70" fill="#cba44c" fillOpacity="0.15" />
             <polygon points="120,120 70,50 50,50 50,70" fill="#cba44c" fillOpacity="0.15" />
             <polygon points="-120,120 -70,50 -50,50 -50,70" fill="#8b1e22" fillOpacity="0.15" />
+
+            {/* Animated Compass Needle */}
+            <g className="compass-needle-animated">
+              <line x1="0" y1="-80" x2="0" y2="80" stroke="#8b1e22" strokeWidth="1.5" strokeOpacity="0.35" />
+              <polygon points="0,-85 4,-60 -4,-60" fill="#b52d32" fillOpacity="0.7" />
+              <polygon points="0,85 4,60 -4,60" fill="#cba44c" fillOpacity="0.5" />
+              <circle r="5" fill="#231210" />
+              <circle r="3" fill="#cba44c" fillOpacity="0.8" />
+            </g>
 
             {/* Cardinal Letters */}
             <text x="0" y="-195" textAnchor="middle" fill="#8b1e22" fillOpacity="0.45" fontSize="13" fontFamily="var(--mono)" fontWeight="700">N</text>
@@ -439,6 +479,7 @@ export default function SkillBountyArchive() {
           onTouchEnd={handleTouchEnd}
         >
           {/* Stacked physical papers underneath for realistic depth */}
+          <div className="poster-stack-underlayer underlayer-3" aria-hidden="true" />
           <div className="poster-stack-underlayer underlayer-2" aria-hidden="true" />
           <div className="poster-stack-underlayer underlayer-1" aria-hidden="true" />
 
@@ -452,6 +493,12 @@ export default function SkillBountyArchive() {
 
             {/* Vintage Aged Paper Texture & Border Matting */}
             <div className="poster-paper-frame">
+              {/* Gold Corner Ornaments */}
+              <span className="gold-corner-ornament corner-tl" aria-hidden="true" />
+              <span className="gold-corner-ornament corner-tr" aria-hidden="true" />
+              <span className="gold-corner-ornament corner-bl" aria-hidden="true" />
+              <span className="gold-corner-ornament corner-br" aria-hidden="true" />
+
               {/* Corner Brass Rivets */}
               <span className="paper-rivet rivet-tl" aria-hidden="true" />
               <span className="paper-rivet rivet-tr" aria-hidden="true" />
@@ -512,7 +559,7 @@ export default function SkillBountyArchive() {
         </button>
 
         {/* ── RIGHT / ADJACENT: MARINE INTELLIGENCE DOSSIER ── */}
-        <aside className="bounty-dossier-plate" aria-labelledby="dossier-title">
+        <aside className="bounty-dossier-plate" key={`dossier-${activePoster.id}-${transitionKey}`} aria-labelledby="dossier-title">
           {/* Dossier Header Classification */}
           <div className="dossier-header">
             <div className="dossier-cipher-bar">
@@ -543,10 +590,12 @@ export default function SkillBountyArchive() {
               <span className="bounty-plaque-currency">BERRY DENOMINATION</span>
             </div>
             <div className="bounty-plaque-value">
-              <span className="berry-symbol">฿</span>
-              <span className="bounty-digits">{activePoster.bounty.replace("฿", "")}</span>
+              <span className="berry-symbol">₿</span>
+              <span className="bounty-digits">{activePoster.bounty.replace("₿", "")}</span>
               <span className="berry-stamp-icon">☠</span>
             </div>
+            {/* Animated gold shimmer overlay */}
+            <div className="bounty-plaque-shimmer" aria-hidden="true" />
           </div>
 
           {/* Tactical Description */}
@@ -568,6 +617,13 @@ export default function SkillBountyArchive() {
             </div>
           </div>
 
+          {/* Animated verification seal */}
+          <div className="dossier-verification-seal" aria-hidden="true">
+            <span className="verification-ring" />
+            <span className="verification-check">✓</span>
+            <span className="verification-text">VERIFIED</span>
+          </div>
+
           {/* Footer Marine Stamp & Coordinates */}
           <footer className="dossier-footer">
             <div className="dossier-stamp-seal">
@@ -580,6 +636,9 @@ export default function SkillBountyArchive() {
           </footer>
         </aside>
       </div>
+
+      {/* Light sweep effect */}
+      <div className="archive-light-sweep" aria-hidden="true" />
 
       {/* ── BOTTOM: INTERACTIVE GRAND LINE ROUTE & LOG POSE PROGRESS ── */}
       <nav className="bounty-route-nav" aria-label="Grand Line Archive Route Navigation">
@@ -635,4 +694,3 @@ export default function SkillBountyArchive() {
     </div>
   );
 }
-
