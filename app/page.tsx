@@ -10,6 +10,7 @@ import SoundDock from "@/components/SoundDock";
 import SiteNav from "@/components/SiteNav";
 import KineticLane from "@/components/KineticLane";
 import ShipScene from "@/components/ShipScene";
+import SkillBountyArchive from "@/components/SkillBountyArchive";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -109,7 +110,6 @@ export default function Home() {
   const [chaosMode, setChaosMode] = useState(false);
   const [sailSignal, setSailSignal] = useState(0);
   const [signalMode, setSignalMode] = useState(0);
-  const [labPhase, setLabPhase] = useState(0);
   const [quipIndex, setQuipIndex] = useState(0);
   const signalLines = [
     { first: "I make", second: "the complex", third: "feel simple", accent: "complex", label: "01 / CLARITY" },
@@ -127,18 +127,7 @@ export default function Home() {
   const changeProject = (direction: number) => {
     setProjectIndex((index) => (index + direction + visibleProjects.length) % visibleProjects.length);
   };
-  // Original generated Wanted posters are used as-is; the carousel only changes slides.
-  const posterSkills = [
-    { name: "React", src: "/posters/react.webp", bounty: "฿1,500,000,000" },
-    { name: "TypeScript", src: "/posters/typescript.webp", bounty: "฿1,000,000,000" },
-    { name: "Next.js", src: "/posters/nextjs.webp", bounty: "฿1,200,000,000" },
-    { name: "Python", src: "/posters/python.webp", bounty: "฿900,000,000" },
-    { name: "Supabase", src: "/posters/supabase.webp", bounty: "฿800,000,000" },
-    { name: "Flutter", src: "/posters/flutter.webp", bounty: "฿750,000,000" },
-  ];
-  const posterTouchStart = useRef<number | null>(null);
   const projectTouchStart = useRef<number | null>(null);
-  const activePoster = posterSkills[labPhase % posterSkills.length];
   const visitorQuips = [
     "Take a chill pill. I’m just a person who likes building things.",
     "No world domination plan here. Just a few tabs and a lot of curiosity.",
@@ -252,21 +241,6 @@ export default function Home() {
     event.currentTarget.style.setProperty("--depth-y", "0px");
     const row = event.currentTarget.closest(".project-row") as HTMLElement | null;
     if (row) { row.style.setProperty("--info-shift-x", "0px"); row.style.setProperty("--info-shift-y", "0px"); }
-  };
-
-  const tiltPoster = (event: ReactMouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-    event.currentTarget.style.setProperty("--poster-tilt-x", `${(0.5 - y) * 15}deg`);
-    event.currentTarget.style.setProperty("--poster-tilt-y", `${(x - 0.5) * 16}deg`);
-    event.currentTarget.style.setProperty("--poster-scale", `1.035`);
-  };
-
-  const resetPoster = (event: ReactMouseEvent<HTMLDivElement>) => {
-    event.currentTarget.style.setProperty("--poster-tilt-x", `0deg`);
-    event.currentTarget.style.setProperty("--poster-tilt-y", `0deg`);
-    event.currentTarget.style.setProperty("--poster-scale", `1`);
   };
 
   const handleContactMove = (event: ReactPointerEvent<HTMLElement>) => {
@@ -440,51 +414,19 @@ export default function Home() {
 
       <section className="lab-section section-pad" id="lab">
         <div className="section-heading lab-heading" data-reveal>
-          <div><span className="eyebrow">03 / SHIPYARD LAB <i className="lab-live-dot" /> EXPERIMENT 001—026</span><h2>Curiosity, <em>set sail.</em></h2></div>
+          <div>
+            <span className="eyebrow">03 / SHIPYARD LAB <i className="lab-live-dot" /> GRAND LINE BOUNTY ARCHIVE</span>
+            <h2>Curiosity, <em>set sail.</em></h2>
+          </div>
           <p>Every tool is part of the crew.<br />The magic is what you build together.</p>
         </div>
-        <div className="lab-manifesto" aria-label="Lab motto"><span>THE SEA IS FULL OF WHAT-IFS.</span><b>Sometimes all you need is a little curiosity.</b><span className="manifesto-spark">✳</span></div>
-        <div className="poster-carousel-wrap" data-reveal>
-          <div className="poster-carousel-meta"><span><i className="lab-live-dot" /> SKILL BOUNTY ARCHIVE</span><span>{String(labPhase + 1).padStart(2, "0")} / {String(posterSkills.length).padStart(2, "0")}</span></div>
-          <div
-            className="poster-carousel"
-            role="region"
-            aria-roledescription="carousel"
-            aria-label="Swipe through skill wanted posters"
-            tabIndex={0}
-            onKeyDown={(event) => {
-              if (event.key === "ArrowRight") setLabPhase((phase) => (phase + 1) % posterSkills.length);
-              if (event.key === "ArrowLeft") setLabPhase((phase) => (phase - 1 + posterSkills.length) % posterSkills.length);
-            }}
-            onPointerDown={(event) => { posterTouchStart.current = event.clientX; }}
-            onPointerUp={(event) => {
-              if (posterTouchStart.current === null) return;
-              const delta = event.clientX - posterTouchStart.current;
-              if (Math.abs(delta) > 45) setLabPhase((phase) => (phase + (delta < 0 ? 1 : -1) + posterSkills.length) % posterSkills.length);
-              posterTouchStart.current = null;
-            }}
-            onPointerCancel={() => { posterTouchStart.current = null; }}
-          >
-            <button className="poster-arrow poster-arrow-prev" type="button" aria-label="Previous skill poster" onClick={() => setLabPhase((phase) => (phase - 1 + posterSkills.length) % posterSkills.length)}>←</button>
-            <div className="poster-stage" key={activePoster.name} onMouseMove={tiltPoster} onMouseLeave={resetPoster}>
-              <img className="skill-wanted-poster" src={activePoster.src} alt={`${activePoster.name} skill wanted poster with its original berry bounty design`} draggable={false} />
-            </div>
-            <button className="poster-arrow poster-arrow-next" type="button" aria-label="Next skill poster" onClick={() => setLabPhase((phase) => (phase + 1) % posterSkills.length)}>→</button>
-          </div>
-          <div className="poster-carousel-footer">
-            <div>
-              <div className="poster-current-topline">
-                <span className="poster-current-label">CURRENT BOUNTY FILE</span>
-                <span className="poster-bounty-badge">{activePoster.bounty}</span>
-              </div>
-              <h3>{activePoster.name}</h3>
-              <p>Swipe, drag, or use the arrows to browse the crew.</p>
-            </div>
-            <div className="poster-carousel-controls" aria-label="Choose a skill poster">
-              {posterSkills.map((poster, index) => <button key={poster.name} type="button" className={`poster-dot ${index === labPhase ? "is-active" : ""}`} aria-label={`Show ${poster.name} poster`} aria-current={index === labPhase ? "true" : undefined} onClick={() => setLabPhase(index)}><span>{String(index + 1).padStart(2, "0")}</span></button>)}
-            </div>
-          </div>
+        <div className="lab-manifesto" aria-label="Lab motto">
+          <span>THE SEA IS FULL OF WHAT-IFS.</span>
+          <b>Sometimes all you need is a little curiosity.</b>
+          <span className="manifesto-spark">✳</span>
         </div>
+
+        <SkillBountyArchive />
       </section>
 
 

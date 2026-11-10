@@ -1921,3 +1921,1050 @@ html, body {
 .kinetic-lane .ticker-flash{height:46px!important;min-height:0!important;min-width:54px!important;padding:5px 12px!important;white-space:nowrap}
 .kinetic-lane .ticker-flash small{white-space:nowrap;writing-mode:horizontal-tb}
 .kinetic-lane .ticker-item:before{inset:-2px 2px}
+
+
+/* =========================================================================
+   GRAND LINE SKILL BOUNTY ARCHIVE (V31)
+   ========================================================================= */
+
+.bounty-archive-chamber {
+  position: relative;
+  width: 100%;
+  max-width: 1320px;
+  margin: 30px auto 0;
+  padding: 32px 32px 42px;
+  background: linear-gradient(180deg, rgba(247, 243, 234, 0.96) 0%, rgba(241, 235, 222, 0.94) 100%);
+  border: 1.5px solid rgba(139, 30, 34, 0.28);
+  border-radius: 4px;
+  box-shadow: 
+    0 24px 65px rgba(45, 20, 15, 0.08),
+    0 4px 16px rgba(45, 20, 15, 0.04),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+    inset 0 0 80px rgba(203, 164, 76, 0.06);
+  isolation: isolate;
+  overflow: hidden;
+  outline: none;
+}
+
+.bounty-archive-chamber:focus-visible {
+  outline: 2px dashed #8b1e22;
+  outline-offset: 4px;
+}
+
+/* Nautical Map Backdrop */
+.bounty-map-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bounty-map-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bounty-compass-rose {
+  transform-origin: 720px 420px;
+  animation: compassSlowDrift 90s linear infinite;
+}
+
+@keyframes compassSlowDrift {
+  from { transform: translate(720px, 420px) rotate(0deg); }
+  to { transform: translate(720px, 420px) rotate(360deg); }
+}
+
+/* Floating Gold Particles */
+.bounty-ambient-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.gold-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e9bf57 30%, rgba(203, 164, 76, 0) 80%);
+  opacity: 0.45;
+  filter: drop-shadow(0 0 4px #e9bf57);
+}
+
+.gold-particle.p1 { left: 14%; top: 22%; animation: goldFloat1 14s ease-in-out infinite; }
+.gold-particle.p2 { left: 32%; top: 78%; animation: goldFloat2 18s ease-in-out infinite; }
+.gold-particle.p3 { left: 68%; top: 18%; animation: goldFloat1 16s ease-in-out 3s infinite; }
+.gold-particle.p4 { left: 84%; top: 62%; animation: goldFloat2 20s ease-in-out 1s infinite; }
+.gold-particle.p5 { left: 52%; top: 88%; animation: goldFloat1 15s ease-in-out 5s infinite; }
+.gold-particle.p6 { left: 45%; top: 12%; animation: goldFloat2 17s ease-in-out 2s infinite; }
+
+@keyframes goldFloat1 {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.25; }
+  50% { transform: translateY(-38px) translateX(14px) scale(1.6); opacity: 0.65; }
+}
+
+@keyframes goldFloat2 {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+  50% { transform: translateY(42px) translateX(-18px) scale(1.5); opacity: 0.7; }
+}
+
+/* Archive Control Topbar */
+.bounty-archive-topbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1.5px solid rgba(139, 30, 34, 0.22);
+  margin-bottom: 30px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 700 10px/1 var(--mono);
+  letter-spacing: 0.12em;
+  color: #3d231e;
+}
+
+.archive-live-signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #8b1e22;
+  font-weight: 700;
+}
+
+.signal-ruby-beacon {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8b1e22;
+  box-shadow: 0 0 0 3px rgba(139, 30, 34, 0.2), 0 0 10px rgba(139, 30, 34, 0.6);
+  animation: rubyBeaconPulse 2s ease-in-out infinite;
+}
+
+@keyframes rubyBeaconPulse {
+  0%, 100% { opacity: 0.7; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 0 6px rgba(139, 30, 34, 0.3), 0 0 16px rgba(139, 30, 34, 0.85); }
+}
+
+.topbar-divider {
+  color: rgba(139, 30, 34, 0.35);
+}
+
+.archive-sector-code {
+  color: #68574c;
+  font-size: 9.5px;
+}
+
+.topbar-center {
+  display: flex;
+  align-items: center;
+}
+
+.marine-file-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  background: rgba(139, 30, 34, 0.08);
+  border: 1px solid rgba(139, 30, 34, 0.3);
+  border-radius: 20px;
+  font: 700 9.5px/1 var(--mono);
+  letter-spacing: 0.14em;
+  color: #8b1e22;
+  text-transform: uppercase;
+}
+
+.jolly-roger-mini {
+  font-size: 13px;
+  color: #8b1e22;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 700 10px/1 var(--mono);
+  letter-spacing: 0.1em;
+}
+
+.bounty-tally-label {
+  color: #796658;
+  font-size: 8.5px;
+}
+
+.bounty-tally-number {
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: #231210;
+  color: #e9bf57;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  box-shadow: 0 2px 6px rgba(35, 18, 16, 0.25);
+}
+
+/* Stage Viewport: Dual-Presence Layout */
+.bounty-stage-viewport {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(320px, 460px) minmax(360px, 1fr) auto;
+  align-items: center;
+  gap: clamp(16px, 2.8vw, 36px);
+  min-height: 560px;
+}
+
+/* Navigation Dials */
+.bounty-nav-dial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  z-index: 10;
+  outline: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dial-compass-housing {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  box-shadow: 0 8px 24px rgba(45, 20, 15, 0.14), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.dial-compass-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.dial-needle {
+  transform-origin: 22px 22px;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.dial-arrow-glyph {
+  position: relative;
+  z-index: 2;
+  font-size: 26px;
+  line-height: 1;
+  color: #8b1e22;
+  font-family: Georgia, serif;
+  font-weight: 700;
+  margin-top: -3px;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.dial-sub-label {
+  font: 700 8px/1 var(--mono);
+  letter-spacing: 0.16em;
+  color: #796658;
+  transition: color 0.25s ease;
+}
+
+.bounty-nav-dial:hover .dial-compass-housing {
+  transform: scale(1.12);
+  box-shadow: 0 14px 32px rgba(139, 30, 34, 0.28), 0 0 0 3px rgba(203, 164, 76, 0.35);
+}
+
+.bounty-nav-dial:hover.dial-prev .dial-needle {
+  transform: rotate(-35deg);
+}
+
+.bounty-nav-dial:hover.dial-next .dial-needle {
+  transform: rotate(35deg);
+}
+
+.bounty-nav-dial:hover .dial-arrow-glyph {
+  color: #992227;
+}
+
+.bounty-nav-dial:hover .dial-sub-label {
+  color: #8b1e22;
+}
+
+.bounty-nav-dial:active .dial-compass-housing {
+  transform: scale(0.94);
+}
+
+/* 3D Wanted Poster Container */
+.bounty-poster-container {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  aspect-ratio: 3 / 4.4;
+  perspective: 1200px;
+  cursor: grab;
+  user-select: none;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --glint-x: 50%;
+  --glint-y: 35%;
+  --shadow-x: 0px;
+  --shadow-y: 26px;
+}
+
+.bounty-poster-container:active {
+  cursor: grabbing;
+}
+
+/* Stacked Underlayers (physical paper thickness) */
+.poster-stack-underlayer {
+  position: absolute;
+  inset: 6px;
+  border-radius: 3px;
+  background: #ebd8b2;
+  border: 1px solid rgba(139, 30, 34, 0.16);
+  pointer-events: none;
+  transition: transform 0.4s ease;
+}
+
+.underlayer-1 {
+  transform: rotate(-2.2deg) translateZ(-12px);
+  box-shadow: 0 10px 25px rgba(45, 20, 15, 0.1);
+  background: #e4cfa7;
+}
+
+.underlayer-2 {
+  transform: rotate(1.8deg) translateZ(-24px);
+  box-shadow: 0 18px 35px rgba(45, 20, 15, 0.08);
+  background: #deb68e;
+}
+
+.bounty-poster-container:hover .underlayer-1 {
+  transform: rotate(-3.5deg) translateZ(-16px);
+}
+
+.bounty-poster-container:hover .underlayer-2 {
+  transform: rotate(2.8deg) translateZ(-30px);
+}
+
+/* Active 3D Wanted Poster Card */
+.bounty-poster-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  transform-style: preserve-3d;
+  transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(10px);
+  box-shadow: 
+    var(--shadow-x) var(--shadow-y) 55px rgba(45, 20, 15, 0.32),
+    0 4px 15px rgba(45, 20, 15, 0.16),
+    0 0 0 1px rgba(139, 30, 34, 0.22);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  will-change: transform, box-shadow;
+  animation: posterDeckBreathe 7s ease-in-out infinite alternate;
+}
+
+@keyframes posterDeckBreathe {
+  0% { transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(0px) translateZ(8px); }
+  100% { transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(-8px) translateZ(16px); }
+}
+
+.bounty-poster-card.is-hovered {
+  animation-play-state: paused;
+}
+
+/* Card Flip Transitions */
+.bounty-poster-card.flip-next {
+  animation: bountyFlipNext 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bounty-poster-card.flip-prev {
+  animation: bountyFlipPrev 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes bountyFlipNext {
+  0% { opacity: 0; transform: perspective(1200px) translateX(36px) rotateY(-18deg) scale(0.92); filter: blur(5px); }
+  100% { opacity: 1; transform: perspective(1200px) translateX(0) rotateY(0deg) scale(1); filter: blur(0); }
+}
+
+@keyframes bountyFlipPrev {
+  0% { opacity: 0; transform: perspective(1200px) translateX(-36px) rotateY(18deg) scale(0.92); filter: blur(5px); }
+  100% { opacity: 1; transform: perspective(1200px) translateX(0) rotateY(0deg) scale(1); filter: blur(0); }
+}
+
+/* Vintage Paper Frame */
+.poster-paper-frame {
+  position: absolute;
+  inset: 0;
+  padding: 10px;
+  background: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(212, 175, 55, 0.12) 50%, rgba(139, 30, 34, 0.08) 100%),
+    #edd9b4;
+  border: 1.5px solid rgba(139, 30, 34, 0.35);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 0 25px rgba(110, 70, 30, 0.18);
+}
+
+.poster-artwork-mat {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: inset 0 0 12px rgba(45, 20, 15, 0.25);
+  transform: translateZ(12px);
+}
+
+.bounty-poster-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Realistic Gloss Sheen following cursor */
+.poster-gloss-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: 4px;
+  background: radial-gradient(
+    circle 380px at var(--glint-x) var(--glint-y),
+    rgba(255, 255, 255, 0.48) 0%,
+    rgba(255, 248, 220, 0.18) 32%,
+    transparent 65%
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+}
+
+/* Paper Rivets (Corner Brass) */
+.paper-rivet {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff1cf, #cba44c 60%, #5d4315 100%);
+  box-shadow: 0 1px 3px rgba(35, 18, 16, 0.5), inset 0 0 1px rgba(0, 0, 0, 0.4);
+  z-index: 6;
+}
+
+.rivet-tl { top: 6px; left: 6px; }
+.rivet-tr { top: 6px; right: 6px; }
+.rivet-bl { bottom: 6px; left: 6px; }
+.rivet-br { bottom: 6px; right: 6px; }
+
+/* Marine Embossed Wax / Ink Stamp */
+.poster-marine-seal {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 7;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(181, 45, 50, 0.92);
+  border: 2px dashed rgba(255, 248, 220, 0.7);
+  box-shadow: 
+    0 4px 12px rgba(139, 30, 34, 0.4),
+    inset 0 0 10px rgba(0, 0, 0, 0.25);
+  display: grid;
+  place-items: center;
+  transform: rotate(-14deg) translateZ(28px);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  transition: transform 0.35s ease;
+}
+
+.bounty-poster-card:hover .poster-marine-seal {
+  transform: rotate(-8deg) scale(1.08) translateZ(35px);
+}
+
+.seal-outer-rim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff4df;
+}
+
+.seal-text-arch {
+  font: 700 6px/1 var(--mono);
+  letter-spacing: 0.14em;
+  opacity: 0.85;
+}
+
+.seal-skull {
+  font-size: 19px;
+  line-height: 1;
+  margin: 1px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.seal-verified {
+  font: 800 8.5px/1 var(--display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Foil Corner Label */
+.poster-foil-tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 7;
+  padding: 3px 8px;
+  background: rgba(35, 18, 16, 0.88);
+  border: 1px solid rgba(203, 164, 76, 0.6);
+  border-radius: 2px;
+  font: 700 8px/1 var(--mono);
+  letter-spacing: 0.12em;
+  color: #e9bf57;
+  transform: translateZ(20px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Marine Intelligence Dossier Companion Plate */
+.bounty-dossier-plate {
+  position: relative;
+  background: 
+    radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.65) 0%, transparent 40%),
+    linear-gradient(180deg, #f8f3e9 0%, #ede3ce 100%);
+  border: 1.5px solid rgba(139, 30, 34, 0.28);
+  border-radius: 4px;
+  padding: 24px 26px;
+  box-shadow: 
+    0 16px 40px rgba(45, 20, 15, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: dossierReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes dossierReveal {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.dossier-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(139, 30, 34, 0.18);
+}
+
+.dossier-cipher-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dossier-badge-threat {
+  font: 800 8.5px/1 var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1.2px solid;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.dossier-archive-ref {
+  font: 700 9px/1 var(--mono);
+  letter-spacing: 0.1em;
+  color: #68574c;
+}
+
+.dossier-category-pill {
+  font: 700 8.5px/1 var(--mono);
+  letter-spacing: 0.12em;
+  color: #8b1e22;
+  text-transform: uppercase;
+}
+
+/* Dossier Identity */
+.dossier-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dossier-epithet-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 10.5px/1.2 var(--mono);
+  letter-spacing: 0.14em;
+  color: #8b1e22;
+  text-transform: uppercase;
+}
+
+.crosshair-anchor {
+  font-size: 13px;
+  color: #cba44c;
+}
+
+.dossier-title {
+  font: 700 clamp(30px, 3.2vw, 42px)/1 var(--sans);
+  letter-spacing: -0.05em;
+  color: #231210;
+  margin: 2px 0 0;
+}
+
+.dossier-role-lede {
+  font: 500 13px/1.5 var(--sans);
+  color: #5d4940;
+  margin: 0;
+}
+
+/* Berry Bounty Plaque */
+.dossier-bounty-plaque {
+  padding: 12px 16px;
+  background: 
+    linear-gradient(90deg, #1f1411 0%, #2e1d17 100%);
+  border: 1px solid #cba44c;
+  border-radius: 4px;
+  box-shadow: 0 6px 18px rgba(35, 18, 16, 0.22);
+}
+
+.bounty-plaque-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: 700 8px/1 var(--mono);
+  letter-spacing: 0.16em;
+  color: #d4af37;
+  margin-bottom: 6px;
+}
+
+.bounty-plaque-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.berry-symbol {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #f7d26d;
+  text-shadow: 0 0 12px rgba(247, 210, 109, 0.5);
+}
+
+.bounty-digits {
+  font: 800 clamp(22px, 2.6vw, 32px)/1 var(--mono);
+  letter-spacing: 0.04em;
+  color: #fff5df;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.berry-stamp-icon {
+  margin-left: auto;
+  font-size: 18px;
+  color: #b52d32;
+  opacity: 0.85;
+}
+
+/* Intel Body */
+.dossier-intel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.intel-field-label {
+  font: 700 8px/1 var(--mono);
+  letter-spacing: 0.14em;
+  color: #8b1e22;
+  text-transform: uppercase;
+}
+
+.dossier-description {
+  font: 400 12.5px/1.65 var(--sans);
+  color: #402f27;
+  margin: 0;
+}
+
+/* Tags Cluster */
+.dossier-tags-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.dossier-tags-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dossier-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(242, 235, 220, 0.9);
+  border: 1px solid rgba(139, 30, 34, 0.22);
+  border-radius: 3px;
+  font: 600 9.5px/1 var(--mono);
+  letter-spacing: 0.06em;
+  color: #38241e;
+  transition: all 0.2s ease;
+}
+
+.dossier-chip:hover {
+  background: #8b1e22;
+  color: #fff6eb;
+  border-color: #8b1e22;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(139, 30, 34, 0.22);
+}
+
+.chip-spark {
+  color: #cba44c;
+  font-style: normal;
+  font-size: 9px;
+}
+
+.dossier-chip:hover .chip-spark {
+  color: #ffe89e;
+}
+
+/* Dossier Footer */
+.dossier-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(139, 30, 34, 0.2);
+  margin-top: 4px;
+}
+
+.stamp-box-red {
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1.5px solid #8b1e22;
+  border-radius: 2px;
+  font: 800 8px/1 var(--mono);
+  letter-spacing: 0.14em;
+  color: #8b1e22;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+}
+
+.dossier-meta-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font: 700 8px/1 var(--mono);
+  letter-spacing: 0.1em;
+  color: #796658;
+}
+
+/* Bottom Interactive Grand Line Route Nav */
+.bounty-route-nav {
+  position: relative;
+  z-index: 2;
+  margin-top: 34px;
+  padding-top: 18px;
+  border-top: 1.5px solid rgba(139, 30, 34, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.route-meta-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.route-current-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 700 9.5px/1 var(--mono);
+  letter-spacing: 0.12em;
+}
+
+.route-marker-label {
+  color: #8b1e22;
+}
+
+.route-fraction {
+  color: #38241e;
+}
+
+.route-fraction b {
+  color: #8b1e22;
+}
+
+.route-hint-instruction {
+  font: 600 8.5px/1 var(--mono);
+  letter-spacing: 0.14em;
+  color: #796658;
+}
+
+/* Interactive Voyage Track Line */
+.route-track-line {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 8px;
+}
+
+.route-track-line::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2px;
+  background: rgba(139, 30, 34, 0.18);
+  border-radius: 2px;
+  z-index: 0;
+}
+
+.route-progress-fill {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2.5px;
+  background: linear-gradient(90deg, #8b1e22, #cba44c, #8b1e22);
+  border-radius: 2px;
+  z-index: 1;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 8px rgba(203, 164, 76, 0.5);
+}
+
+/* Route Waypoint Buttons */
+.route-waypoint {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.waypoint-pin {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f5eedf;
+  border: 1.5px solid rgba(139, 30, 34, 0.35);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 10px rgba(45, 20, 15, 0.1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.waypoint-core {
+  font: 700 10px/1 var(--mono);
+  color: #5d4940;
+  transition: color 0.3s ease;
+}
+
+.route-waypoint:hover .waypoint-pin {
+  transform: translateY(-4px) scale(1.12);
+  border-color: #8b1e22;
+  box-shadow: 0 8px 18px rgba(139, 30, 34, 0.25);
+}
+
+.route-waypoint:hover .waypoint-core {
+  color: #8b1e22;
+}
+
+/* Active Waypoint State */
+.route-waypoint.is-active .waypoint-pin {
+  background: #8b1e22;
+  border-color: #cba44c;
+  transform: translateY(-5px) scale(1.22);
+  box-shadow: 
+    0 10px 24px rgba(139, 30, 34, 0.4),
+    0 0 0 3px rgba(203, 164, 76, 0.45);
+}
+
+.route-waypoint.is-active .waypoint-core {
+  color: #fff5df;
+}
+
+.waypoint-pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(139, 30, 34, 0.6);
+  animation: waypointPulseRing 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes waypointPulseRing {
+  0% { transform: scale(0.85); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Waypoint Popover */
+.waypoint-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #231210;
+  color: #fff4df;
+  padding: 5px 9px;
+  border-radius: 3px;
+  border: 1px solid #cba44c;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.waypoint-popover::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #231210;
+}
+
+.waypoint-name {
+  font: 700 9.5px/1 var(--sans);
+  color: #f7d26d;
+}
+
+.waypoint-bounty {
+  font: 700 8px/1 var(--mono);
+  color: #e5ded5;
+}
+
+.route-waypoint:hover .waypoint-popover,
+.route-waypoint.is-active .waypoint-popover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── RESPONSIVE ADAPTATIONS ── */
+@media (max-width: 1080px) {
+  .bounty-stage-viewport {
+    grid-template-columns: auto minmax(280px, 400px) 1fr auto;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 960px) {
+  .bounty-archive-chamber {
+    padding: 22px 18px 28px;
+  }
+
+  .bounty-stage-viewport {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .bounty-nav-dial {
+    display: none;
+  }
+
+  .bounty-poster-container {
+    max-width: 360px;
+  }
+
+  .route-hint-instruction {
+    display: none;
+  }
+
+  .topbar-right {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .bounty-archive-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .bounty-poster-container {
+    max-width: 300px;
+  }
+
+  .dossier-title {
+    font-size: 28px;
+  }
+
+  .bounty-digits {
+    font-size: 20px;
+  }
+
+  .route-track-line {
+    padding: 12px 0;
+  }
+
+  .waypoint-pin {
+    width: 28px;
+    height: 28px;
+  }
+
+  .waypoint-core {
+    font-size: 8.5px;
+  }
+
+  .waypoint-popover {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bounty-compass-rose,
+  .gold-particle,
+  .bounty-poster-card,
+  .signal-ruby-beacon,
+  .waypoint-pulse {
+    animation: none !important;
+  }
+  .bounty-poster-card {
+    transition: none !important;
+  }
+}
