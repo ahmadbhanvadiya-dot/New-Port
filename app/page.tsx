@@ -10,7 +10,7 @@ import SoundDock from "@/components/SoundDock";
 import SiteNav from "@/components/SiteNav";
 import KineticLane from "@/components/KineticLane";
 import ShipScene from "@/components/ShipScene";
-import SkillBountyArchive from "@/components/SkillBountyArchive";
+import BountyBoard from "@/components/BountyBoard";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -414,19 +414,11 @@ export default function Home() {
 
       <section className="lab-section section-pad" id="lab">
         <div className="section-heading lab-heading" data-reveal>
-          <div>
-            <span className="eyebrow">03 / SHIPYARD LAB <i className="lab-live-dot" /> GRAND LINE BOUNTY ARCHIVE</span>
-            <h2>Curiosity, <em>set sail.</em></h2>
-          </div>
+          <div><span className="eyebrow">03 / SHIPYARD LAB <i className="lab-live-dot" /> EXPERIMENT 001—026</span><h2>Curiosity, <em>set sail.</em></h2></div>
           <p>Every tool is part of the crew.<br />The magic is what you build together.</p>
         </div>
-        <div className="lab-manifesto" aria-label="Lab motto">
-          <span>THE SEA IS FULL OF WHAT-IFS.</span>
-          <b>Sometimes all you need is a little curiosity.</b>
-          <span className="manifesto-spark">✳</span>
-        </div>
-
-        <SkillBountyArchive />
+        <div className="lab-manifesto" aria-label="Lab motto"><span>THE SEA IS FULL OF WHAT-IFS.</span><b>Sometimes all you need is a little curiosity.</b><span className="manifesto-spark">✳</span></div>
+        <BountyBoard />
       </section>
 
 
