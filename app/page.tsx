@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { PointerEvent as ReactPointerEvent, MouseEvent as ReactMouseEvent } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import dynamic from "next/dynamic";
-import { ArrowDownRight, ArrowUpRight, Github, Linkedin, MoveUpRight, Music } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Github, Linkedin, Music } from "lucide-react";
 import ScrollLuffy from "@/components/ScrollLuffy";
 import ScrollBackground from "@/components/ScrollBackground";
 import SoundDock from "@/components/SoundDock";
@@ -11,6 +11,7 @@ import SiteNav from "@/components/SiteNav";
 import KineticLane from "@/components/KineticLane";
 import ShipScene from "@/components/ShipScene";
 import BountyBoard from "@/components/BountyBoard";
+import IslandSelector from "@/components/IslandSelector";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -19,93 +20,10 @@ const OrbScene = dynamic(() => import("@/components/OrbScene"), {
   loading: () => <div className="scene-fallback" aria-hidden="true" />,
 });
 
-const projects = [
-  {
-    number: "01",
-    name: "NarcoLens",
-    type: "AI / COMPUTER VISION · DIGITAL FORENSICS",
-    year: "2026",
-    description: "An AI-powered digital companion for field-test documentation and image analysis, built to make test records more traceable.",
-    stack: ["Next.js", "TypeScript", "FastAPI", "Image Analysis"],
-    theme: "narco",
-    mark: "N/",
-    href: "https://github.com/ahmadbhanvadiya-dot/narcolens",
-    live: "https://narcolens.vercel.app",
-    featured: true,
-  },
-  {
-    number: "02",
-    name: "SmartCommute AI",
-    type: "MOBILITY · ROUTE INTELLIGENCE",
-    year: "2026",
-    description: "A smarter commuting platform combining transit route planning, real-world GTFS data, map-based discovery, and logistics tools.",
-    stack: ["Next.js", "TypeScript", "FastAPI", "GTFS", "Leaflet"],
-    theme: "commute",
-    mark: "SC",
-    href: "https://github.com/ahmadbhanvadiya-dot/Smartcommute-web",
-    live: "https://smartcommute-web-three.vercel.app/dashboard",
-    featured: true,
-  },
-  {
-    number: "03",
-    name: "ForeSight",
-    type: "AI · OPERATIONAL RISK & WORKFORCE ROUTING",
-    year: "2026",
-    description: "A risk-aware work routing platform designed to score delays, evaluate team capacity, and direct requests to suitable employees.",
-    stack: ["Next.js", "TypeScript", "Supabase", "Framer Motion"],
-    theme: "foresight",
-    mark: "FS",
-    href: "https://github.com/ahmadbhanvadiya-dot/ForeSight",
-    live: "https://spih-133.vercel.app",
-    featured: true,
-  },
-  {
-    number: "04",
-    name: "Freshlify",
-    type: "MOBILE · PRODUCT TRACKING",
-    year: "2026",
-    description: "QR-powered product freshness and expiry tracking, with inventory tools that help make everyday product information easier to manage.",
-    stack: ["Flutter", "Dart", "SQLite", "QR"],
-    theme: "fresh",
-    mark: "F.",
-    href: "https://github.com/ahmadbhanvadiya-dot/freshlifyv3",
-    live: "https://github.com/ahmadbhanvadiya-dot/Freshlify",
-    featured: true,
-  },
-  {
-    number: "05",
-    name: "Code Atlas",
-    type: "DEVELOPER TOOLS · WEB",
-    year: "2026",
-    description: "A developer-focused web project built with TypeScript, exploring ways to make code and project information easier to navigate.",
-    stack: ["Next.js", "TypeScript"],
-    theme: "atlas",
-    mark: "CA",
-    href: "https://github.com/ahmadbhanvadiya-dot/code-atlas",
-    live: "https://code-atlas-delta.vercel.app",
-    featured: false,
-  },
-  {
-    number: "06",
-    name: "Meridian Restro",
-    type: "WEB DESIGN · HOSPITALITY",
-    year: "2025",
-    description: "A responsive restaurant website focused on menu discovery, digital presence, and a polished browsing experience.",
-    stack: ["HTML", "CSS", "JavaScript"],
-    theme: "meridian",
-    mark: "MR",
-    href: "https://github.com/ahmadbhanvadiya-dot/MeridianRestro",
-    live: "https://themeridianrestro.netlify.app/",
-    featured: false,
-  },
-];
-
 export default function Home() {
   const root = useRef<HTMLElement>(null);
   const [time, setTime] = useState("--:--");
   const [copied, setCopied] = useState(false);
-  const [workFilter, setWorkFilter] = useState("All work");
-  const [projectIndex, setProjectIndex] = useState(0);
   const [activeCrew, setActiveCrew] = useState("COMPASS CORSAIRS");
   const [chaosMode, setChaosMode] = useState(false);
   const [sailSignal, setSailSignal] = useState(0);
@@ -117,17 +35,6 @@ export default function Home() {
     { first: "I build", second: "useful things", third: "with a pulse", accent: "useful things", label: "03 / FEELING" },
   ];
   const activeSignal = signalLines[signalMode];
-  const visibleProjects = projects.filter((project) => {
-    if (workFilter === "All work") return true;
-    if (workFilter === "AI / Systems") return ["NarcoLens", "SmartCommute AI", "ForeSight"].includes(project.name);
-    if (workFilter === "Web") return ["Code Atlas", "Meridian Restro"].includes(project.name);
-    return ["Freshlify"].includes(project.name);
-  });
-  const activeProject = visibleProjects[projectIndex % visibleProjects.length] ?? projects[0];
-  const changeProject = (direction: number) => {
-    setProjectIndex((index) => (index + direction + visibleProjects.length) % visibleProjects.length);
-  };
-  const projectTouchStart = useRef<number | null>(null);
   const visitorQuips = [
     "Take a chill pill. I’m just a person who likes building things.",
     "No world domination plan here. Just a few tabs and a lot of curiosity.",
@@ -213,36 +120,6 @@ export default function Home() {
     event.currentTarget.style.setProperty("--pointer-local-y", `${event.clientY - rect.top}px`);
   };
 
-  const tiltArtwork = (event: ReactMouseEvent<HTMLAnchorElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-    event.currentTarget.style.setProperty("--tilt-x", `${(0.5 - y) * 10}deg`);
-    event.currentTarget.style.setProperty("--tilt-y", `${(x - 0.5) * 12}deg`);
-    event.currentTarget.style.setProperty("--shine-x", `${x * 100}%`);
-    event.currentTarget.style.setProperty("--shine-y", `${y * 100}%`);
-    event.currentTarget.style.setProperty("--card-x", `${x * 100}%`);
-    event.currentTarget.style.setProperty("--card-y", `${y * 100}%`);
-    event.currentTarget.style.setProperty("--depth-x", `${(x - 0.5) * 18}px`);
-    event.currentTarget.style.setProperty("--depth-y", `${(y - 0.5) * 18}px`);
-    const row = event.currentTarget.closest(".project-row") as HTMLElement | null;
-    if (row) {
-      row.style.setProperty("--info-shift-x", `${(x - 0.5) * -10}px`);
-      row.style.setProperty("--info-shift-y", `${(y - 0.5) * -8}px`);
-    }
-  };
-
-  const resetArtwork = (event: ReactMouseEvent<HTMLAnchorElement>) => {
-    event.currentTarget.style.setProperty("--tilt-x", "0deg");
-    event.currentTarget.style.setProperty("--tilt-y", "0deg");
-    event.currentTarget.style.setProperty("--card-x", "50%");
-    event.currentTarget.style.setProperty("--card-y", "50%");
-    event.currentTarget.style.setProperty("--depth-x", "0px");
-    event.currentTarget.style.setProperty("--depth-y", "0px");
-    const row = event.currentTarget.closest(".project-row") as HTMLElement | null;
-    if (row) { row.style.setProperty("--info-shift-x", "0px"); row.style.setProperty("--info-shift-y", "0px"); }
-  };
-
   const handleContactMove = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType !== "mouse") return;
     const rect = event.currentTarget.getBoundingClientRect();
@@ -319,78 +196,7 @@ export default function Home() {
           <p>Six islands explored.<br />Useful things built along the way.</p>
         </div>
 
-        <div className="work-filter-bar" aria-label="Filter projects">
-          {["All work", "AI / Systems", "Web", "Mobile"].map((filter) => (
-            <button key={filter} className={workFilter === filter ? "filter-active" : ""} onClick={() => { setWorkFilter(filter); setProjectIndex(0); }}>
-              {filter}<span>{filter === "All work" ? "06" : filter === "AI / Systems" ? "03" : filter === "Web" ? "02" : "01"}</span>
-            </button>
-          ))}
-        </div>
-        <div className="project-carousel-shell" data-reveal>
-          <div className="project-carousel-topline">
-            <span><i className="lab-live-dot" /> ISLAND SELECTOR / INTERACTIVE LOGBOOK</span>
-            <span>{String(projectIndex + 1).padStart(2, "0")} <b>/</b> {String(visibleProjects.length).padStart(2, "0")}</span>
-          </div>
-          <div
-            className="project-carousel-viewport"
-            role="region"
-            aria-roledescription="carousel"
-            aria-label="Featured project carousel"
-            tabIndex={0}
-            onKeyDown={(event) => {
-              if (event.key === "ArrowRight") changeProject(1);
-              if (event.key === "ArrowLeft") changeProject(-1);
-            }}
-            onPointerDown={(event) => { projectTouchStart.current = event.clientX; }}
-            onPointerUp={(event) => {
-              if (projectTouchStart.current === null) return;
-              const delta = event.clientX - projectTouchStart.current;
-              if (Math.abs(delta) > 45) changeProject(delta < 0 ? 1 : -1);
-              projectTouchStart.current = null;
-            }}
-            onPointerCancel={() => { projectTouchStart.current = null; }}
-          >
-            <div className="project-ghost project-ghost-prev" aria-hidden="true">{visibleProjects[(projectIndex - 1 + visibleProjects.length) % visibleProjects.length]?.number}</div>
-            <div className="project-ghost project-ghost-next" aria-hidden="true">{visibleProjects[(projectIndex + 1) % visibleProjects.length]?.number}</div>
-            <button className="project-carousel-arrow project-carousel-prev" type="button" aria-label="Previous project" onClick={() => changeProject(-1)}>←</button>
-            <div className="project-list project-list-carousel" key={`${workFilter}-${activeProject.name}`}>
-              <article className="project-row project-row-active" key={activeProject.name}>
-              <a className={`project-art art-${activeProject.theme}`} href={activeProject.href} target="_blank" rel="noreferrer" aria-label={`Open ${activeProject.name} project link`} onMouseMove={tiltArtwork} onMouseLeave={resetArtwork}>
-                <div className="art-grain" />
-                <div className="art-top"><span>{activeProject.number} / CASE FILE</span><span>{activeProject.year}</span></div>
-                <div className={`art-symbol symbol-${activeProject.theme}`} aria-hidden="true">
-                  {activeProject.theme === "narco" && <><div className="scan-ring ring-one" /><div className="scan-ring ring-two" /><div className="scan-core">N<span>/</span></div><div className="scan-cross">+</div></>}
-                  {activeProject.theme === "commute" && <><div className="route-line route-a" /><div className="route-line route-b" /><div className="route-node node-a" /><div className="route-node node-b" /><div className="route-node node-c" /><div className="route-center">SC</div></>}
-                  {activeProject.theme === "fresh" && <><div className="fresh-orbit orbit-a" /><div className="fresh-orbit orbit-b" /><div className="fresh-core">F.</div><span className="fresh-leaf">✳</span></>}
-                  {activeProject.theme === "foresight" && <><div className="fs-grid">{Array.from({length:25}).map((_,i)=><i key={i} />)}</div><div className="fs-core">FS<span>◎</span></div><div className="fs-scan">RISK SIGNAL / 03</div></>}
-                  {activeProject.theme === "atlas" && <><div className="atlas-orbit atlas-a"/><div className="atlas-orbit atlas-b"/><div className="atlas-core">{"{}"}</div><span className="atlas-node node-1">TS</span><span className="atlas-node node-2">JS</span><span className="atlas-node node-3">UI</span></>}
-                  {activeProject.theme === "meridian" && <><div className="meridian-disc"/><div className="meridian-type">M<br/><span>R</span></div><span className="meridian-label">THE TABLE IS SET</span></>}
-                </div>
-                <span className="art-monogram">{activeProject.mark}</span>
-                <span className="art-hover-label"><span>GRAND LINE DOSSIER</span><b>EXPLORE {activeProject.name.toUpperCase()} ↗</b></span>
-                <div className="art-bottom"><span>MOVE YOUR CURSOR / DISCOVER THE ISLAND</span><span className="art-arrow"><ArrowUpRight size={18} /></span></div>
-              </a>
-              <div className="activeProject-info">
-                <div className="activeProject-meta"><span>{activeProject.type}</span><span>{activeProject.number}</span></div>
-                <h3>{activeProject.name}</h3>
-                <p>{activeProject.description}</p>
-                <div className="stack-list">{activeProject.stack.map((tech) => <span key={tech}>{tech}</span>)}</div>
-                <div className="activeProject-links">
-                  <a href={activeProject.href} target="_blank" rel="noreferrer" className="text-link">SOURCE CODE <MoveUpRight size={14} /></a>
-                  {activeProject.live && <a href={activeProject.live} target="_blank" rel="noreferrer" className="text-link secondary-link">LIVE / DETAILS <ArrowUpRight size={13} /></a>}
-                </div>
-              </div>
-            </article>
-            </div>
-            <button className="project-carousel-arrow project-carousel-next" type="button" aria-label="Next project" onClick={() => changeProject(1)}>→</button>
-          </div>
-          <div className="project-carousel-footer">
-            <div className="project-carousel-caption"><span>NOW EXPLORING</span><strong>{activeProject.name}</strong><small>DRAG / SWIPE / ARROW KEYS TO NAVIGATE</small></div>
-            <div className="project-carousel-dots" aria-label="Choose a project">
-              {visibleProjects.map((project, index) => <button key={project.name} type="button" className={index === projectIndex ? "is-active" : ""} aria-label={`Show ${project.name}`} aria-current={index === projectIndex ? "true" : undefined} onClick={() => setProjectIndex(index)}><span>{project.number}</span></button>)}
-            </div>
-          </div>
-        </div>
+        <IslandSelector />
         <div className="work-footnote"><span>MORE TREASURES LIVE IN THE VAULT.</span><a href="https://github.com/ahmadbhanvadiya-dot" target="_blank" rel="noreferrer">VISIT THE TREASURE VAULT <ArrowUpRight size={14} /></a></div>
       </section>
 
