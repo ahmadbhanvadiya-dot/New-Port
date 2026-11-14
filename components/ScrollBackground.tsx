@@ -17,7 +17,8 @@ import { useEffect, useRef, useState } from "react";
 const TOTAL_FRAMES = 101;
 const DESKTOP_DIR = "/frames";
 const MOBILE_DIR = "/frames-m";
-const DECODE_WINDOW = 12; // decoded bitmaps kept on each side of the current frame
+const DECODE_WINDOW_DESKTOP = 8; // 2560x1440 frames are ~15 MB each once decoded, so keep fewer
+const DECODE_WINDOW_MOBILE = 12; // decoded bitmaps kept on each side of the current frame
 const EVICT_MARGIN = 4; // extra distance before a decoded bitmap is released
 const MAX_CONCURRENT_FETCHES = 8;
 const INITIAL_PRIORITY_FRAMES = 16;
@@ -42,6 +43,7 @@ export default function ScrollBackground() {
 
     const useMobileSet = window.matchMedia("(max-width: 820px), (pointer: coarse)").matches;
     const dir = useMobileSet ? MOBILE_DIR : DESKTOP_DIR;
+    const DECODE_WINDOW = useMobileSet ? DECODE_WINDOW_MOBILE : DECODE_WINDOW_DESKTOP;
     const frameUrl = (i: number) => `${dir}/f${pad(i)}.webp`;
 
     let isMounted = true;
