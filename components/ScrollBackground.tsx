@@ -61,12 +61,14 @@ export default function ScrollBackground() {
     let lastTime = performance.now();
     let endY = 1;
     let firstReported = false;
+    let lite = false; // auto "lite mode" on slow machines
+    let slow = 0;
     const mouseTarget = { x: 0, y: 0 };
     const mouseCurrent = { x: 0, y: 0 };
 
     const configureCtx = () => {
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
+      ctx.imageSmoothingQuality = "medium";
     };
     configureCtx();
 
@@ -119,7 +121,7 @@ export default function ScrollBackground() {
 
       // Cross-blend toward the next frame for smooth in-between motion
       const next = bitmaps[hi];
-      if (t > 0.04 && next && base === bitmaps[lo] && next !== base) {
+      if (!lite && Math.abs(target - current) < 2.5 && t > 0.04 && next && base === bitmaps[lo] && next !== base) {
         ctx.globalAlpha = t;
         drawCover(next);
         ctx.globalAlpha = 1;
@@ -217,8 +219,9 @@ export default function ScrollBackground() {
 
     const resizeCanvas = (): boolean => {
       const rect = container.getBoundingClientRect();
-      let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      if (rect.width * dpr > MAX_CANVAS_WIDTH) dpr = MAX_CANVAS_WIDTH / rect.width;
+      let dpr = Math.min(window.devicePixelRatio || 1, lite ? 1 : 1.5);
+      const maxWidth = lite ? 1600 : MAX_CANVAS_WIDTH;
+      if (rect.width * dpr > maxWidth) dpr = maxWidth / rect.width;
       const w = Math.max(1, Math.round(rect.width * dpr));
       const h = Math.max(1, Math.round(rect.height * dpr));
       if (canvas.width !== w || canvas.height !== h) {
@@ -247,8 +250,22 @@ export default function ScrollBackground() {
     const loop = (now: number) => {
       rafId = null;
       if (!isMounted) return;
-      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      const rawDt = (now - lastTime) / 1000;
+      const dt = Math.min(rawDt, 0.1);
       lastTime = now;
+
+      // If scrolling keeps running below ~30 fps, drop to a lighter rendering mode automatically.
+      if (!lite && rawDt < 0.5 && Math.abs(target - current) > 0.05) {
+        slow = Math.max(0, slow + (rawDt > 0.034 ? 1 : -1));
+        if (slow > 45) {
+          lite = true;
+          document.documentElement.dataset.perf = "lite";
+          if (resizeCanvas()) {
+            lastKey = -1;
+            render();
+          }
+        }
+      }
 
       const diff = target - current;
       current += diff * Math.min(1, LERP_SPEED * dt);
@@ -263,9 +280,6 @@ export default function ScrollBackground() {
         render();
       }
 
-      container.style.setProperty("--glow-x", `${((mouseCurrent.x + 1) * 50).toFixed(1)}%`);
-      container.style.setProperty("--glow-y", `${((mouseCurrent.y + 1) * 50).toFixed(1)}%`);
-      container.style.setProperty("--glow-boost", `${0.45 + Math.min(1, Math.abs(diff) * 0.03) * 0.35}`);
 
       if (
         Math.abs(target - current) > 0.01 ||

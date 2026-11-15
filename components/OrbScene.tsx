@@ -1,8 +1,8 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Float, Sparkles } from "@react-three/drei";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 const moods = [
@@ -131,6 +131,19 @@ function JollyRoger({ mood, hovering, pointerTarget }: { mood: number; hovering:
   </group>;
 }
 
+/** Stops the WebGL render loop while the skull is scrolled out of view. */
+function VisibilityGate() {
+  const gl = useThree((state) => state.gl);
+  const setFrameloop = useThree((state) => state.setFrameloop);
+  useEffect(() => {
+    const el = gl.domElement;
+    const io = new IntersectionObserver(([entry]) => setFrameloop(entry.isIntersecting ? "always" : "never"), { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [gl, setFrameloop]);
+  return null;
+}
+
 export default function OrbScene({ onCrewChange }: { onCrewChange?: (crew: string) => void }) {
   const [mood, setMood] = useState(0);
   const [hovering, setHovering] = useState(false);
@@ -150,7 +163,8 @@ export default function OrbScene({ onCrewChange }: { onCrewChange?: (crew: strin
     pointerTarget.current.set(0, 0);
   };
   return <div className={`orb-canvas sculpture-canvas${hovering ? " is-hovering" : ""}`} onPointerEnter={() => setHovering(true)} onPointerMove={trackPointer} onPointerLeave={releasePointer} aria-label={`Interactive ${palette.label} Jolly Roger.`}>
-    <Canvas camera={{ position: [0, 0, 5.3], fov: 42 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true, powerPreference: "low-power" }} fallback={<div className="scene-fallback" />}>
+    <Canvas camera={{ position: [0, 0, 5.3], fov: 42 }} dpr={[1, 1.25]} gl={{ antialias: true, alpha: true, powerPreference: "default" }} fallback={<div className="scene-fallback" />}>
+      <VisibilityGate />
       <JollyRoger mood={mood} hovering={hovering} pointerTarget={pointerTarget} />
     </Canvas>
     <button className="sculpture-switch" type="button" onClick={recomposeCrew} aria-label="Recompose the Jolly Roger and switch pirate crew">

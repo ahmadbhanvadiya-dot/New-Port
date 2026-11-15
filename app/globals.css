@@ -2230,3 +2230,23 @@ html, body {
 .visitor-note-label{color:#5a4f41!important;font-size:8.5px!important;text-shadow:0 0 12px rgba(244,236,214,.95)}
 .about-bottom{font-size:9px!important}
 .work-section .eyebrow,.about-top .eyebrow{color:#463d31!important;text-shadow:0 0 12px rgba(244,236,214,.95)}
+
+
+/* =========================================================================
+   PERFORMANCE — nothing blends or blurs the full-screen scrolling canvas live
+   ========================================================================= */
+/* blend modes over the canvas forced an expensive re-blend every frame */
+.scroll-bg-vignette{mix-blend-mode:normal!important;background:radial-gradient(circle at center,transparent 38%,rgba(20,19,19,.05) 78%,rgba(20,19,19,.14) 100%)!important}
+.scroll-bg-golden-aura{display:none!important}
+.scroll-bg-container{contain:strict}
+/* big frosted surfaces: opaque instead of live-blurring the moving background */
+.isl-info{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(145deg,rgba(253,248,233,.97),rgba(243,233,205,.94))!important}
+.nv-panel{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(180deg,rgba(252,246,228,.99),rgba(240,228,198,.99))!important}
+.nv-bar{-webkit-backdrop-filter:blur(8px)!important;backdrop-filter:blur(8px)!important}
+.contact-section{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.isl-dossier{-webkit-backdrop-filter:blur(8px)!important;backdrop-filter:blur(8px)!important}
+
+/* auto "lite mode" (set by ScrollBackground when the machine can't keep up) */
+html[data-perf="lite"] .nv-bar,html[data-perf="lite"] .isl-dossier{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-perf="lite"] .scroll-bg-vignette,html[data-perf="lite"] .lane-spot,html[data-perf="lite"] .bb-glare{display:none!important}
+html[data-perf="lite"] .ship-svg{filter:none!important}
