@@ -126,6 +126,8 @@ export default function IslandSelector() {
     el.style.setProperty("--shine-y", `${(y * 100).toFixed(1)}%`);
     el.style.setProperty("--card-x", `${(x * 100).toFixed(1)}%`);
     el.style.setProperty("--card-y", `${(y * 100).toFixed(1)}%`);
+    el.style.setProperty("--cx", `${(e.clientX - rect.left).toFixed(0)}px`);
+    el.style.setProperty("--cy", `${(e.clientY - rect.top).toFixed(0)}px`);
     el.style.setProperty("--depth-x", `${((x - 0.5) * 18).toFixed(1)}px`);
     el.style.setProperty("--depth-y", `${((y - 0.5) * 18).toFixed(1)}px`);
     slideRef.current?.style.setProperty("--px", ((x - 0.5) * 2).toFixed(3));
@@ -136,6 +138,8 @@ export default function IslandSelector() {
     ["--tilt-x", "--tilt-y", "--depth-x", "--depth-y"].forEach((k) => el.style.setProperty(k, k.startsWith("--tilt") ? "0deg" : "0px"));
     el.style.setProperty("--card-x", "50%");
     el.style.setProperty("--card-y", "50%");
+    el.style.setProperty("--cx", "50%");
+    el.style.setProperty("--cy", "50%");
     slideRef.current?.style.setProperty("--px", "0");
     slideRef.current?.style.setProperty("--py", "0");
   };
@@ -213,7 +217,17 @@ export default function IslandSelector() {
                 {active.theme === "meridian" && <><div className="meridian-disc" /><div className="meridian-type">M<br /><span>R</span></div><span className="meridian-label">THE TABLE IS SET</span></>}
               </div>
               <span className="art-monogram">{active.mark}</span>
-              <span className="art-hover-label"><span>GRAND LINE DOSSIER</span><b>EXPLORE {active.name.toUpperCase()} ↗</b></span>
+              <span className="isl-reticle" aria-hidden="true"><i /><i /><i /><i /></span>
+              <span className="isl-scan" aria-hidden="true" />
+              <span className="isl-cursor" aria-hidden="true"><b>OPEN</b><ArrowUpRight size={17} /></span>
+              <span className="isl-dossier" aria-hidden="true">
+                <span className="isl-dossier-main">
+                  <span className="isl-dossier-kicker">GRAND LINE DOSSIER · {active.number}</span>
+                  <strong>{active.name}</strong>
+                  <span className="isl-dossier-chips">{active.stack.slice(0, 3).map((t) => <i key={t}>{t}</i>)}</span>
+                </span>
+                <span className="isl-dossier-cta">Open <ArrowUpRight size={15} /></span>
+              </span>
               <div className="art-bottom"><span>MOVE YOUR CURSOR / DISCOVER THE ISLAND</span><span className="art-arrow"><ArrowUpRight size={18} /></span></div>
             </a>
 

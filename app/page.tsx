@@ -24,7 +24,7 @@ export default function Home() {
   const root = useRef<HTMLElement>(null);
   const [time, setTime] = useState("--:--");
   const [copied, setCopied] = useState(false);
-  const [activeCrew, setActiveCrew] = useState("COMPASS CORSAIRS");
+  const [activeCrew, setActiveCrew] = useState("STRAW HAT PIRATES");
   const [chaosMode, setChaosMode] = useState(false);
   const [sailSignal, setSailSignal] = useState(0);
   const [signalMode, setSignalMode] = useState(0);
