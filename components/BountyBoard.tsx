@@ -3,16 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 
-type Skill = { name: string; src: string; bounty: number; role: string; note: string };
+type Skill = { name: string; src: string; w: number; h: number; bounty: number; role: string; note: string };
 
 // Edit these to match your own skills — the bounties are just for fun.
 const SKILLS: Skill[] = [
-  { name: "React", src: "/posters/react.webp", bounty: 1_500_000_000, role: "Interface Navigator", note: "Where my interfaces come alive." },
-  { name: "TypeScript", src: "/posters/typescript.webp", bounty: 1_000_000_000, role: "Quartermaster of Types", note: "Keeps the whole crew in line." },
-  { name: "Next.js", src: "/posters/nextjs.webp", bounty: 1_200_000_000, role: "The Ship's Engine", note: "Pages that sail fast." },
-  { name: "Python", src: "/posters/python.webp", bounty: 900_000_000, role: "Navigator of Data", note: "Glue, scripts and quick experiments." },
-  { name: "Supabase", src: "/posters/supabase.webp", bounty: 800_000_000, role: "Keeper of the Treasure", note: "Auth, data and storage on tap." },
-  { name: "Flutter", src: "/posters/flutter.webp", bounty: 750_000_000, role: "Deckhand on Every Device", note: "One codebase, every screen." },
+  { name: "React", src: "/posters/react.webp", w: 826, h: 1250, bounty: 1_500_000_000, role: "Interface Navigator", note: "Where my interfaces come alive." },
+  { name: "TypeScript", src: "/posters/typescript.webp", w: 900, h: 1205, bounty: 1_000_000_000, role: "Quartermaster of Types", note: "Keeps the whole crew in line." },
+  { name: "Next.js", src: "/posters/nextjs.webp", w: 900, h: 1205, bounty: 1_200_000_000, role: "The Ship's Engine", note: "Pages that sail fast." },
+  { name: "Python", src: "/posters/python.webp", w: 900, h: 1205, bounty: 900_000_000, role: "Navigator of Data", note: "Glue, scripts and quick experiments." },
+  { name: "Supabase", src: "/posters/supabase.webp", w: 900, h: 1205, bounty: 800_000_000, role: "Keeper of the Treasure", note: "Auth, data and storage on tap." },
+  { name: "Flutter", src: "/posters/flutter.webp", w: 900, h: 1205, bounty: 750_000_000, role: "Deckhand on Every Device", note: "One codebase, every screen." },
 ];
 
 const RAISE_STEP = 50_000_000;
@@ -236,7 +236,8 @@ export default function BountyBoard() {
                   <div className="bb-tilt">
                     <div className="bb-flip" data-flipped={active && flipped ? "true" : "false"}>
                       <div className="bb-face bb-front">
-                        <img src={skill.src} alt={`${skill.name} skill wanted poster`} draggable={false} />
+                        {/* lazy: the lab section is far below the fold, and without it React preloads all six posters in <head> */}
+                        <img src={skill.src} width={skill.w} height={skill.h} loading="lazy" decoding="async" alt={`${skill.name} skill wanted poster`} draggable={false} />
                         <span className="bb-dim" aria-hidden="true" />
                         <span className="bb-glare" aria-hidden="true" />
                         {stamp && stamp.index === i && (

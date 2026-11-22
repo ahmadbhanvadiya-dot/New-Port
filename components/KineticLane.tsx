@@ -46,10 +46,14 @@ export default function KineticLane({ chaos, onToggleChaos }: Props) {
     const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
     const loop = (now: number) => {
+      // Off-screen the loop stops completely (the IntersectionObserver restarts it).
+      if (!visible) {
+        raf = 0;
+        return;
+      }
       raf = requestAnimationFrame(loop);
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
-      if (!visible) return;
 
       hoverFactor += ((hovering ? 0.3 : 1) - hoverFactor) * Math.min(1, 6 * dt);
       scrollV *= Math.exp(-4 * dt);
@@ -119,6 +123,7 @@ export default function KineticLane({ chaos, onToggleChaos }: Props) {
     const io = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
       last = performance.now();
+      if (visible && !raf) raf = requestAnimationFrame(loop);
     });
     io.observe(lane);
 

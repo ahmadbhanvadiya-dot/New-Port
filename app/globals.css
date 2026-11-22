@@ -191,8 +191,10 @@ button{font:inherit}
 
 /* Reality-bending interaction layer */
 .site-shell{--pointer-x:50vw;--pointer-y:30vh;position:relative}
-.cursor-ghost{position:fixed;z-index:30;left:var(--pointer-x);top:var(--pointer-y);width:250px;height:250px;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(139,92,246,.14) 0%,rgba(217,255,67,.08) 27%,rgba(139,92,246,.035) 48%,transparent 70%);mix-blend-mode:multiply;filter:blur(5px);transition:width .35s ease,height .35s ease;will-change:left,top}
-.site-shell:has(a:hover) .cursor-ghost{width:330px;height:330px}
+/* moved with transform (compositor-only); --pointer-x/y are written on this element by CursorEffects */
+.cursor-ghost{position:fixed;z-index:30;left:0;top:0;width:250px;height:250px;border-radius:50%;pointer-events:none;transform:translate3d(var(--pointer-x),var(--pointer-y),0) translate(-50%,-50%);background:radial-gradient(circle,rgba(139,92,246,.14) 0%,rgba(217,255,67,.08) 27%,rgba(139,92,246,.035) 48%,transparent 70%);mix-blend-mode:multiply;filter:blur(5px);transition:width .35s ease,height .35s ease;will-change:transform}
+.cursor-ghost.is-link{width:330px;height:330px}
+.cursor-ghost.is-hidden{width:120px;height:120px;opacity:0}
 .hero-title{transform-style:preserve-3d}
 .hero-title-line{transition:letter-spacing .5s cubic-bezier(.2,.8,.2,1),transform .5s cubic-bezier(.2,.8,.2,1);transform-origin:left center}
 .hero-title:hover .hero-title-line:nth-child(1){letter-spacing:-.11em;transform:translateX(8px) skewX(-3deg)}
@@ -266,9 +268,6 @@ button{font:inherit}
 
 
 /* Afterhours V6 — playful, expressive interaction polish */
-.cursor-word{position:fixed;z-index:31;left:var(--pointer-x);top:var(--pointer-y);transform:translate(-50%,-50%) scale(.7) rotate(-8deg);pointer-events:none;opacity:0;display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:100px;background:var(--acid);color:var(--ink);font:8px var(--mono);letter-spacing:.08em;white-space:nowrap;transition:opacity .2s,transform .25s cubic-bezier(.2,.8,.2,1)}
-.cursor-word span{font-size:13px}.site-shell:has(.project-art:hover) .cursor-word{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(4deg)}
-.site-shell:has(.project-art:hover) .cursor-ghost{width:120px;height:120px;background:radial-gradient(circle,#d9ff6740,transparent 72%)}
 .ticker{height:76px;overflow:hidden;display:flex;align-items:center;gap:0;isolation:isolate}
 .ticker-set{min-height:76px}
 .ticker-item{font-size:clamp(15px,1.22vw,21px);font-weight:650;letter-spacing:-.045em;padding:0 clamp(16px,2.2vw,34px)}
@@ -303,7 +302,6 @@ button{font:inherit}
 .lab-card-small:hover .tool-chip:nth-child(3n),.lab-card-small:focus-visible .tool-chip:nth-child(3n){transform:translateY(-7px) rotate(5deg)}
 .lab-card-small:hover .tool-chip:nth-child(3n + 1),.lab-card-small:focus-visible .tool-chip:nth-child(3n + 1){transform:translateY(5px) rotate(-4deg)}
 @media(max-width:640px){.ticker{height:60px}.ticker-set{min-height:60px}.ticker-item{font-size:13px;padding:0 13px}.ticker-item small{font-size:6px;margin-right:6px}.ticker-item b{font-size:14px;margin-left:16px}.ticker-flash{right:5px;min-width:43px;height:43px;padding:5px 7px}.ticker-flash small{font-size:5px}.cursor-word{display:none}}
-@media(hover:none),(pointer:coarse){.cursor-word{display:none}}
 @media(prefers-reduced-motion:reduce){.ticker-chaos{animation:none}.ticker-chaos .ticker-item:nth-child(odd),.ticker-chaos .ticker-item:nth-child(even){transform:none}}
 
 /* V7 — the portfolio becomes a small instrument, not a static poster. */
@@ -461,7 +459,8 @@ button{font:inherit}
 
 /* V18 — kinetic editorial layer: ambient cursor light, responsive depth, and tactile micro-interactions. */
 .site-shell{--pointer-x:50vw;--pointer-y:35vh;position:relative;isolation:isolate}
-.ambient-cursor-glow{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.52;background:radial-gradient(440px circle at var(--pointer-x) var(--pointer-y),rgba(139,92,246,.105),transparent 72%);mix-blend-mode:multiply;transition:opacity .25s}
+/* an 880px light that moves with transform, instead of repainting a full-screen gradient (with a multiply blend over the canvas) on every mouse move */
+.ambient-cursor-glow{position:fixed;left:0;top:0;width:880px;height:880px;z-index:0;pointer-events:none;opacity:.52;background:radial-gradient(440px circle at center,rgba(139,92,246,.105),transparent 72%);transform:translate3d(var(--pointer-x),var(--pointer-y),0) translate(-50%,-50%);will-change:transform;transition:opacity .25s}
 .hero,.ticker,.section-pad,.about-section,.lab-section,.contact-section,
 .project-row{--info-shift-x:0px;--info-shift-y:0px;position:relative;transition:border-color .4s}
 .project-row:before{content:"";position:absolute;left:-2vw;right:-2vw;top:8px;bottom:8px;z-index:-1;pointer-events:none;opacity:0;border-radius:4px;background:radial-gradient(ellipse at 20% 50%,rgba(139,92,246,.075),transparent 60%);transition:opacity .45s}
@@ -2147,7 +2146,7 @@ html, body {
    ========================================================================= */
 .isl-art{--cx:50%;--cy:50%}
 .isl-art .art-hover-label{display:none!important}
-.site-shell:has(.isl-art:hover) .cursor-word,.site-shell:has(.isl-art:hover) .cursor-ghost{opacity:0!important}
+
 @media(hover:hover) and (pointer:fine){.project-art.isl-art{cursor:none}}
 
 /* viewfinder corners that close in on hover */

@@ -17,7 +17,10 @@ export default function ScrollLuffy() {
       rafRef.current = requestAnimationFrame(() => {
         const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
         const progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
-        runner.style.top = `${progress * 100}%`;
+        const trackHeight = runner.parentElement?.clientHeight ?? 0;
+        // transform instead of `top`: moving the runner no longer triggers a layout.
+        // (Same position as `top: progress * 100%` plus the CSS translate(0, -50%).)
+        runner.style.transform = `translate3d(0, ${(progress * trackHeight).toFixed(1)}px, 0) translate(0, -50%)`;
         runner.classList.add("is-running");
         if (settleTimer) clearTimeout(settleTimer);
         settleTimer = setTimeout(() => runner.classList.remove("is-running"), 220);

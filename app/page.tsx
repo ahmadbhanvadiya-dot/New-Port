@@ -13,6 +13,7 @@ import ShipScene from "@/components/ShipScene";
 import BountyBoard from "@/components/BountyBoard";
 import IslandSelector from "@/components/IslandSelector";
 import SceneErrorBoundary from "@/components/SceneErrorBoundary";
+import CursorEffects from "@/components/CursorEffects";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -73,8 +74,10 @@ export default function Home() {
         });
       });
 
+      // Only spin the contact orbit while the contact section is on screen.
       gsap.to(".orbit-ring", {
-        rotate: 360, duration: 32, ease: "none", repeat: -1
+        rotate: 360, duration: 32, ease: "none", repeat: -1,
+        scrollTrigger: { trigger: ".contact-section", start: "top bottom", end: "bottom top", toggleActions: "play pause resume pause" }
       });
     }, root);
 
@@ -102,15 +105,6 @@ export default function Home() {
   };
 
 
-  const moveSpotlight = (event: ReactPointerEvent<HTMLElement>) => {
-    if (event.pointerType !== "mouse") return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    event.currentTarget.style.setProperty("--pointer-x", `${event.clientX}px`);
-    event.currentTarget.style.setProperty("--pointer-y", `${event.clientY}px`);
-    event.currentTarget.style.setProperty("--pointer-local-x", `${event.clientX - rect.left}px`);
-    event.currentTarget.style.setProperty("--pointer-local-y", `${event.clientY - rect.top}px`);
-  };
-
   const handleContactMove = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType !== "mouse") return;
     const rect = event.currentTarget.getBoundingClientRect();
@@ -128,12 +122,11 @@ export default function Home() {
   };
 
   return (
-    <main ref={root} className={`site-shell signal-${signalMode}`} data-signal={signalMode} onPointerMove={moveSpotlight}>
+    <main ref={root} className={`site-shell signal-${signalMode}`} data-signal={signalMode}>
       <ScrollBackground />
       <div className="scroll-progress" aria-hidden="true"><span /></div>
-      <div className="ambient-cursor-glow" aria-hidden="true" />
       <SoundDock />
-      <div className="cursor-ghost" aria-hidden="true" /><div className="cursor-word" aria-hidden="true">LOOK CLOSER <span>↗</span></div>
+      <CursorEffects />
       <a className="skip-link" href="#main-content">Skip to content</a>
       <SiteNav />
 

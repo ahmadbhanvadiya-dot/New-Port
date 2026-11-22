@@ -5,6 +5,9 @@ import { Music, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function SoundDock() {
   const [minimized, setMinimized] = useState(true);
+  // The Spotify embed is heavy (third-party JS + cookies). Only load it once the visitor
+  // opens the player; keep it mounted afterwards so minimizing doesn't stop the music.
+  const [activated, setActivated] = useState(false);
 
   return (
     <aside
@@ -16,7 +19,10 @@ export default function SoundDock() {
         type="button"
         aria-label={minimized ? "Expand music player" : "Minimize music player"}
         aria-expanded={!minimized}
-        onClick={() => setMinimized((prev) => !prev)}
+        onClick={() => {
+          setActivated(true);
+          setMinimized((prev) => !prev);
+        }}
         title={minimized ? "Expand soundtrack player" : "Minimize soundtrack player"}
       >
         <span className="sound-dock-toggle-icon">
@@ -29,15 +35,16 @@ export default function SoundDock() {
       </button>
 
       <div className="sound-dock-body" aria-hidden={minimized}>
-        <iframe
-          title="Play or pause in the pool on Spotify"
-          src="https://open.spotify.com/embed/track/7bUyB6btwXllCHQhNBWZ2C?utm_source=generator&si=ce3b03d78e5d4d4d&theme=0"
-          width="100%"
-          height="80"
-          frameBorder="0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-        />
+        {activated && (
+          <iframe
+            title="Play or pause in the pool on Spotify"
+            src="https://open.spotify.com/embed/track/7bUyB6btwXllCHQhNBWZ2C?utm_source=generator&si=ce3b03d78e5d4d4d&theme=0"
+            width="100%"
+            height="80"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          />
+        )}
       </div>
     </aside>
   );

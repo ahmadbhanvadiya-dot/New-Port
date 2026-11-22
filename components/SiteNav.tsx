@@ -62,13 +62,10 @@ export default function SiteNav() {
 
     const update = () => {
       ticking = false;
+      // Do every layout read first, then write: writing styles before reading
+      // getBoundingClientRect() forced a synchronous layout on every scroll frame.
       const y = window.scrollY;
       const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const header = headerRef.current;
-      if (header) {
-        header.style.setProperty("--nv-p", Math.min(1, Math.max(0, y / max)).toFixed(4));
-        header.style.setProperty("--nv-rot", `${(y * 0.22).toFixed(1)}deg`);
-      }
 
       // scroll-spy: the last section whose top has passed ~40% of the viewport
       let current: string | null = null;
@@ -77,6 +74,12 @@ export default function SiteNav() {
         if (section && section.getBoundingClientRect().top <= window.innerHeight * 0.4) {
           current = link.id;
         }
+      }
+
+      const header = headerRef.current;
+      if (header) {
+        header.style.setProperty("--nv-p", Math.min(1, Math.max(0, y / max)).toFixed(4));
+        header.style.setProperty("--nv-rot", `${(y * 0.22).toFixed(1)}deg`);
       }
       setActive(current);
 

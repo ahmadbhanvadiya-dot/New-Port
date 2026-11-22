@@ -7,9 +7,11 @@ import { useEffect, useRef, useState } from "react";
  *
  * - 101 WebP frames (every frame of the source video), ~6 MB total on desktop.
  * - A lighter 1280x720 set is used on phones / touch devices.
- * - Compressed files are all downloaded up front (tiny), but only a small window of
- *   frames around the current scroll position is decoded into GPU-friendly bitmaps,
- *   so memory stays low and drawing is cheap.
+ * - Frames near the current scroll position are downloaded first. The rest of the set is
+ *   fetched once the page has finished loading (and never with Data Saver on), so the
+ *   frames don't compete with the page's own resources on first load.
+ * - Only a small window of frames around the current scroll position is decoded into
+ *   GPU-friendly bitmaps, so memory stays low and drawing is cheap.
  * - Fractional frames are cross-blended, so motion stays smooth between frames.
  * - The animation finishes BEFORE the "Curiosity, set sail" (#lab) section appears.
  */
@@ -22,6 +24,9 @@ const DECODE_WINDOW_MOBILE = 12; // decoded bitmaps kept on each side of the cur
 const EVICT_MARGIN = 4; // extra distance before a decoded bitmap is released
 const MAX_CONCURRENT_FETCHES = 8;
 const INITIAL_PRIORITY_FRAMES = 16;
+const PREFETCH_AHEAD = 24; // before the page has loaded, only fetch frames this close to the scroll position
+const MAX_RETRIES = 3;
+const MOBILE_QUERY = "(max-width: 820px), (pointer: coarse)";
 const END_BEFORE_LAB_VH = 1.2; // finish when #lab is still 0.2 screens below the fold
 const LERP_SPEED = 18; // higher = snappier
 const MAX_CANVAS_WIDTH = 2560;
@@ -41,7 +46,7 @@ export default function ScrollBackground() {
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    const useMobileSet = window.matchMedia("(max-width: 820px), (pointer: coarse)").matches;
+    const useMobileSet = window.matchMedia(MOBILE_QUERY).matches;
     const dir = useMobileSet ? MOBILE_DIR : DESKTOP_DIR;
     const DECODE_WINDOW = useMobileSet ? DECODE_WINDOW_MOBILE : DECODE_WINDOW_DESKTOP;
     const frameUrl = (i: number) => `${dir}/f${pad(i)}.webp`;
@@ -53,10 +58,14 @@ export default function ScrollBackground() {
     const bitmaps: (ImageBitmap | null)[] = new Array(TOTAL_FRAMES).fill(null);
     const fetching = new Set<number>();
     const decoding = new Set<number>();
+    const failures = new Array<number>(TOTAL_FRAMES).fill(0);
+    const gaveUp = new Set<number>();
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+    let fullPrefetch = false;
 
     let current = 0;
     let target = 0;
-    let lastKey = -1;
+    let lastKey = "";
     let rafId: number | null = null;
     let lastTime = performance.now();
     let endY = 1;
@@ -65,6 +74,12 @@ export default function ScrollBackground() {
     let slow = 0;
     const mouseTarget = { x: 0, y: 0 };
     const mouseCurrent = { x: 0, y: 0 };
+
+    // Redraw only when the frame position or the whole-pixel parallax shift actually changes.
+    const drawKey = () => {
+      const dpr = canvas.width / Math.max(1, canvas.clientWidth || canvas.width);
+      return `${Math.round(current * 8)}|${Math.round(mouseCurrent.x * 6 * dpr)}|${Math.round(mouseCurrent.y * 6 * dpr)}`;
+    };
 
     const configureCtx = () => {
       ctx.imageSmoothingEnabled = true;
@@ -118,6 +133,11 @@ export default function ScrollBackground() {
       const base = nearestBitmap(lo);
       if (!base) return;
       drawCover(base);
+      if (!firstReported) {
+        // Any frame counts (the page may be restored mid-scroll, far from frame 0).
+        firstReported = true;
+        setFirstFrameLoaded(true);
+      }
 
       // Cross-blend toward the next frame for smooth in-between motion
       const next = bitmaps[hi];
@@ -126,7 +146,7 @@ export default function ScrollBackground() {
         drawCover(next);
         ctx.globalAlpha = 1;
       }
-      lastKey = Math.round(current * 8);
+      lastKey = drawKey();
     };
 
     /* ---------- decoding window ---------- */
@@ -144,12 +164,8 @@ export default function ScrollBackground() {
             return;
           }
           bitmaps[i] = bmp;
-          if (!firstReported && i === 0) {
-            firstReported = true;
-            setFirstFrameLoaded(true);
-          }
-          if (Math.abs(current - i) <= 1.5) {
-            lastKey = -1;
+          if (!firstReported || Math.abs(current - i) <= 1.5) {
+            lastKey = "";
             render();
           }
         })
@@ -178,7 +194,7 @@ export default function ScrollBackground() {
     let pump = () => {};
 
     const fetchFrame = (i: number) => {
-      if (i < 0 || i >= TOTAL_FRAMES || blobs[i] || fetching.has(i)) return;
+      if (i < 0 || i >= TOTAL_FRAMES || blobs[i] || fetching.has(i) || gaveUp.has(i)) return;
       fetching.add(i);
       fetch(frameUrl(i), { signal: abort.signal })
         .then((r) => (r.ok ? r.blob() : Promise.reject(new Error("bad frame"))))
@@ -191,7 +207,11 @@ export default function ScrollBackground() {
         })
         .catch(() => {
           fetching.delete(i);
-          if (isMounted) setTimeout(pump, 400);
+          if (!isMounted) return;
+          // Back off, and stop retrying a frame that keeps failing (offline, missing file).
+          failures[i] += 1;
+          if (failures[i] > MAX_RETRIES) gaveUp.add(i);
+          setTimeout(pump, 400 * 2 ** Math.min(failures[i], MAX_RETRIES));
         });
     };
 
@@ -201,16 +221,19 @@ export default function ScrollBackground() {
         const center = Math.round(target);
         let next = -1;
         for (let o = 0; o < TOTAL_FRAMES; o++) {
-          if (center + o < TOTAL_FRAMES && !blobs[center + o] && !fetching.has(center + o)) {
-            next = center + o;
+          const ahead = center + o;
+          const behind = center - o;
+          if (ahead < TOTAL_FRAMES && !blobs[ahead] && !fetching.has(ahead) && !gaveUp.has(ahead)) {
+            next = ahead;
             break;
           }
-          if (center - o >= 0 && !blobs[center - o] && !fetching.has(center - o)) {
-            next = center - o;
+          if (behind >= 0 && !blobs[behind] && !fetching.has(behind) && !gaveUp.has(behind)) {
+            next = behind;
             break;
           }
         }
         if (next === -1) break;
+        if (!fullPrefetch && Math.abs(next - center) > PREFETCH_AHEAD) break;
         fetchFrame(next);
       }
     };
@@ -261,7 +284,7 @@ export default function ScrollBackground() {
           lite = true;
           document.documentElement.dataset.perf = "lite";
           if (resizeCanvas()) {
-            lastKey = -1;
+            lastKey = "";
             render();
           }
         }
@@ -276,10 +299,9 @@ export default function ScrollBackground() {
       mouseCurrent.x += mx * Math.min(1, 6 * dt);
       mouseCurrent.y += my * Math.min(1, 6 * dt);
 
-      if (Math.round(current * 8) !== lastKey || Math.abs(mx) > 0.005 || Math.abs(my) > 0.005) {
+      if (drawKey() !== lastKey) {
         render();
       }
-
 
       if (
         Math.abs(target - current) > 0.01 ||
@@ -301,6 +323,7 @@ export default function ScrollBackground() {
       const y = window.scrollY || window.pageYOffset || 0;
       target = Math.min(1, Math.max(0, y / endY)) * (TOTAL_FRAMES - 1);
       updateDecodeWindow();
+      pump();
       schedule();
     };
 
@@ -314,10 +337,25 @@ export default function ScrollBackground() {
     const onResize = () => {
       computeEndY();
       if (resizeCanvas()) {
-        lastKey = -1;
+        lastKey = "";
         render();
       }
       onScroll();
+    };
+
+    // Fetch the rest of the frames only after the page itself has loaded, when idle.
+    let idleHandle: number | null = null;
+    const enableFullPrefetch = () => {
+      idleHandle = null;
+      if (!isMounted || saveData) return;
+      fullPrefetch = true;
+      pump();
+    };
+    const onPageLoaded = () => {
+      idleHandle =
+        typeof window.requestIdleCallback === "function"
+          ? window.requestIdleCallback(enableFullPrefetch, { timeout: 3000 })
+          : window.setTimeout(enableFullPrefetch, 1500);
     };
 
     /* ---------- start ---------- */
@@ -330,6 +368,8 @@ export default function ScrollBackground() {
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     window.addEventListener("resize", onResize);
     window.addEventListener("load", onResize);
+    if (document.readyState === "complete") onPageLoaded();
+    else window.addEventListener("load", onPageLoaded, { once: true });
 
     // Page height changes as fonts/images/sections settle; keep the end point accurate.
     let resizeObserver: ResizeObserver | null = null;
@@ -353,6 +393,12 @@ export default function ScrollBackground() {
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("load", onResize);
+      window.removeEventListener("load", onPageLoaded);
+      if (idleHandle !== null) {
+        if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idleHandle);
+        window.clearTimeout(idleHandle);
+      }
+      if (lite) delete document.documentElement.dataset.perf;
       resizeObserver?.disconnect();
       if (rafId !== null) cancelAnimationFrame(rafId);
       bitmaps.forEach((b) => b?.close());
@@ -365,24 +411,27 @@ export default function ScrollBackground() {
       className={`scroll-bg-container ${firstFrameLoaded ? "is-ready" : "is-loading"}`}
       aria-hidden="true"
     >
-      <img
-        src="/frames/f000.webp"
-        alt=""
-        className="scroll-bg-initial-poster"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          opacity: firstFrameLoaded ? 0 : 1,
-          transition: "opacity 0.4s ease",
-          pointerEvents: "none",
-        }}
-      />
+      {/* Phones and touch devices get the small first frame, matching the frame set they use. */}
+      <picture>
+        <source media={MOBILE_QUERY} srcSet="/frames-m/f000.webp" />
+        <img
+          src="/frames/f000.webp"
+          alt=""
+          className="scroll-bg-initial-poster"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            opacity: firstFrameLoaded ? 0 : 1,
+            transition: "opacity 0.4s ease",
+            pointerEvents: "none",
+          }}
+        />
+      </picture>
       <canvas ref={canvasRef} className="scroll-bg-canvas" />
       <div className="scroll-bg-vignette" />
-      <div className="scroll-bg-golden-aura" />
     </div>
   );
 }
