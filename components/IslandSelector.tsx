@@ -148,7 +148,7 @@ export default function IslandSelector() {
 
   return (
     <>
-      <div className="work-filter-bar" aria-label="Filter projects">
+      <div className="work-filter-bar" role="group" aria-label="Filter projects">
         {FILTERS.map((f) => (
           <button
             key={f}
@@ -194,7 +194,6 @@ export default function IslandSelector() {
             key={`${filter}-${active.name}`}
             ref={slideRef}
             data-dir={dir}
-            aria-live="polite"
           >
             <a
               className={`project-art isl-art art-${active.theme}`}
@@ -254,6 +253,9 @@ export default function IslandSelector() {
             </div>
           </article>
 
+          {/* Announce only the project name and position, not the whole card, when it changes. */}
+          <span className="visually-hidden" role="status">{`${active.name}, project ${index + 1} of ${count}`}</span>
+
           <button className="isl-arrow isl-arrow-next" type="button" aria-label="Next project" disabled={count < 2} onClick={() => step(1)}>→</button>
         </div>
 
@@ -263,7 +265,7 @@ export default function IslandSelector() {
               <span>NOW EXPLORING</span>
               <strong>{active.name}</strong>
             </div>
-            <div className="isl-route" style={{ ["--pos" as string]: `${pct(index)}%` } as CSSProperties} aria-label="Choose an island">
+            <div className="isl-route" role="group" style={{ ["--pos" as string]: `${pct(index)}%` } as CSSProperties} aria-label="Choose an island">
               <div className="isl-route-line"><i style={{ width: `${pct(index)}%` }} /></div>
               {visible.map((p, i) => (
                 <button

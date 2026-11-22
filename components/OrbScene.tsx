@@ -168,7 +168,7 @@ export default function OrbScene({ onCrewChange }: { onCrewChange?: (crew: strin
     onCrewChange?.(moods[nextMood].label);
     pointerTarget.current.set(0, 0);
   };
-  return <div className={`orb-canvas sculpture-canvas${hovering ? " is-hovering" : ""}`} onPointerEnter={() => setHovering(true)} onPointerMove={trackPointer} onPointerLeave={releasePointer} aria-label={`Interactive ${palette.label} Jolly Roger.`}>
+  return <div className={`orb-canvas sculpture-canvas${hovering ? " is-hovering" : ""}`} onPointerEnter={() => setHovering(true)} onPointerMove={trackPointer} onPointerLeave={releasePointer} role="group" aria-label={`Interactive ${palette.label} Jolly Roger.`}>
     <Canvas camera={{ position: [0, 0, 5.3], fov: 42 }} dpr={[1, 1.25]} gl={{ antialias: true, alpha: true, powerPreference: "default" }} fallback={<div className="scene-fallback" />}>
       <VisibilityGate />
       <JollyRoger mood={mood} hovering={hovering} pointerTarget={pointerTarget} />

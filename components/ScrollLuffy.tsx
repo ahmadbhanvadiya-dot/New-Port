@@ -38,8 +38,9 @@ export default function ScrollLuffy() {
     };
   }, []);
 
+  // Decorative: it mirrors the scroll position, so it is hidden from assistive tech.
   return (
-    <aside className="scroll-luffy-track" aria-label="Luffy scroll companion">
+    <aside className="scroll-luffy-track" aria-hidden="true">
       <span className="scroll-luffy-rail" aria-hidden="true" />
       <span className="scroll-luffy-caption" aria-hidden="true">GRAND LINE</span>
       <div className="scroll-luffy-runner" ref={runnerRef} title="Luffy runs along with your scroll">

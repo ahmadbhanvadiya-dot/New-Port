@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { prefersReducedMotion } from "@/lib/motion";
 
 /**
  * Scroll-scrubbed background.
@@ -327,8 +328,10 @@ export default function ScrollBackground() {
       schedule();
     };
 
+    const reduceMotion = prefersReducedMotion();
     const onPointerMove = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse") return;
+      // Mouse parallax is decorative; scroll scrubbing stays (it follows the visitor's own scroll).
+      if (e.pointerType !== "mouse" || reduceMotion) return;
       mouseTarget.x = (e.clientX / window.innerWidth - 0.5) * 2;
       mouseTarget.y = (e.clientY / window.innerHeight - 0.5) * 2;
       schedule();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "@/lib/motion";
 
 type Props = { chaos: boolean; onToggleChaos: () => void };
 
@@ -20,8 +21,10 @@ export default function KineticLane({ chaos, onToggleChaos }: Props) {
     const track = trackRef.current;
     if (!lane || !track) return;
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const BASE = reduce ? 18 : 70; // idle speed, px/s (to the left)
+    const reduce = prefersReducedMotion();
+    // idle speed, px/s (to the left). With reduced motion the lane does not move on its
+    // own at all (it can still be dragged): WCAG 2.2.2, no auto-moving content.
+    const BASE = reduce ? 0 : 70;
 
     let x = 0;
     let half = 1;

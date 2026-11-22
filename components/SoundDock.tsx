@@ -34,7 +34,8 @@ export default function SoundDock() {
         </span>
       </button>
 
-      <div className="sound-dock-body" aria-hidden={minimized}>
+      {/* inert: while minimized, the (invisible) player must not be reachable with Tab */}
+      <div className="sound-dock-body" aria-hidden={minimized} inert={minimized}>
         {activated && (
           <iframe
             title="Play or pause in the pool on Spotify"

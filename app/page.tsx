@@ -14,6 +14,7 @@ import BountyBoard from "@/components/BountyBoard";
 import IslandSelector from "@/components/IslandSelector";
 import SceneErrorBoundary from "@/components/SceneErrorBoundary";
 import CursorEffects from "@/components/CursorEffects";
+import { prefersReducedMotion } from "@/lib/motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -48,7 +49,18 @@ export default function Home() {
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    const reduceMotion = prefersReducedMotion();
     const ctx = gsap.context(() => {
+      // The scroll progress bar follows the visitor's own scrolling, so it stays on.
+      gsap.to(".scroll-progress span", {
+        scaleX: 1, ease: "none",
+        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom bottom", scrub: 0.25 }
+      });
+
+      // Everything below is decorative motion: skipped for prefers-reduced-motion
+      // (content is already visible in the server-rendered HTML).
+      if (reduceMotion) return;
+
       gsap.fromTo(".hero-kicker, .hero-title-line, .hero-copy, .hero-actions", {
         y: 34, opacity: 0, filter: "blur(8px)"
       }, {
@@ -63,10 +75,6 @@ export default function Home() {
         });
       });
 
-      gsap.to(".scroll-progress span", {
-        scaleX: 1, ease: "none",
-        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom bottom", scrub: 0.25 }
-      });
       gsap.utils.toArray<HTMLElement>(".section-heading, .about-statement").forEach((element) => {
         gsap.fromTo(element, { y: 24, rotateX: 2 }, {
           y: -12, rotateX: 0, ease: "none",
@@ -123,11 +131,12 @@ export default function Home() {
 
   return (
     <main ref={root} className={`site-shell signal-${signalMode}`} data-signal={signalMode}>
+      {/* First focusable element on the page, so keyboard users can skip straight to the content. */}
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <ScrollBackground />
       <div className="scroll-progress" aria-hidden="true"><span /></div>
       <SoundDock />
       <CursorEffects />
-      <a className="skip-link" href="#main-content">Skip to content</a>
       <SiteNav />
 
       <section className="hero" id="top" aria-labelledby="hero-heading">
@@ -152,7 +161,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <div className="hero-visual" aria-label="Interactive Jolly Roger with a Grand Line compass">
+          <div className="hero-visual" role="group" aria-label="Interactive Jolly Roger with a Grand Line compass">
             <div className="visual-label visual-label-top"><span>GRAND LINE / 001</span><span>JOLLY ROGER FIELD NOTES</span></div>
             <SceneErrorBoundary label="3D skull" fallback={<div className="scene-fallback" aria-hidden="true" />}>
               <OrbScene onCrewChange={setActiveCrew} />
@@ -209,7 +218,7 @@ export default function Home() {
           <div><span className="eyebrow">03 / SHIPYARD LAB <i className="lab-live-dot" /> EXPERIMENT 001—026</span><h2>Curiosity, <em>set sail.</em></h2></div>
           <p>Every tool is part of the crew.<br />The magic is what you build together.</p>
         </div>
-        <div className="lab-manifesto" aria-label="Lab motto"><span>THE SEA IS FULL OF WHAT-IFS.</span><b>Sometimes all you need is a little curiosity.</b><span className="manifesto-spark">✳</span></div>
+        <div className="lab-manifesto"><span>THE SEA IS FULL OF WHAT-IFS.</span><b>Sometimes all you need is a little curiosity.</b><span className="manifesto-spark">✳</span></div>
         <BountyBoard />
       </section>
 
@@ -226,7 +235,8 @@ export default function Home() {
           <span className="eyebrow">04 / YOUR NEXT ADVENTURE</span>
           <h2>Ready for a<br /><em>new adventure?</em></h2>
           <p>Got a project, a curious idea, or a problem worth solving? Pull up a seat at the table. Let’s build something useful.</p>
-          <button className="contact-button" onClick={copyEmail}><span>{copied ? "EMAIL COPIED" : "BHANVADIYAAHMAD@GMAIL.COM"}</span><ArrowUpRight size={21} /></button>
+          <button className="contact-button" type="button" onClick={copyEmail}><span>{copied ? "EMAIL COPIED" : "BHANVADIYAAHMAD@GMAIL.COM"}</span><ArrowUpRight size={21} /></button>
+          <span className="visually-hidden" role="status">{copied ? "Email address copied to the clipboard." : ""}</span>
           <div className="social-links">
             <a href="https://github.com/ahmadbhanvadiya-dot" target="_blank" rel="noreferrer"><Github size={16} /> GITHUB <ArrowUpRight size={12} /></a>
             <a href="https://linkedin.com/in/ahmad-bhanvadia-dot" target="_blank" rel="noreferrer"><Linkedin size={16} /> LINKEDIN <ArrowUpRight size={12} /></a>

@@ -18,6 +18,8 @@ export default function SiteNav() {
   const barRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLUListElement | null>(null);
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   const [active, setActive] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -107,17 +109,50 @@ export default function SiteNav() {
     };
   }, []);
 
-  /* ---- close mobile menu on Escape / when resized to desktop ---- */
+  /* ---- close mobile menu when resized to desktop ---- */
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
     const onResize = () => window.innerWidth > 900 && setMenuOpen(false);
-    window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("resize", onResize);
-    };
+    return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  /* ---- mobile menu keyboard handling: focus moves in, Tab stays in, Escape returns to the toggle ---- */
+  useEffect(() => {
+    if (!menuOpen) return;
+    const panel = panelRef.current;
+    const toggle = toggleRef.current;
+    // The panel becomes visible as soon as it is open; focus its first link on the next frame.
+    const raf = requestAnimationFrame(() => panel?.querySelector<HTMLElement>("a")?.focus());
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        toggle?.focus();
+        return;
+      }
+      if (e.key !== "Tab" || !panel || !toggle) return;
+      // Cycle between the toggle (close button) and the panel links.
+      const items = [toggle, ...Array.from(panel.querySelectorAll<HTMLElement>("a"))];
+      const first = items[0];
+      const last = items[items.length - 1];
+      const current = document.activeElement as HTMLElement | null;
+      if (!current || !items.includes(current)) {
+        e.preventDefault();
+        first.focus();
+      } else if (e.shiftKey && current === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && current === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
 
   /* ---- cursor-following glow inside the bar ---- */
   const onBarMove = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -189,6 +224,7 @@ export default function SiteNav() {
             </span>
           </a>
           <button
+            ref={toggleRef}
             type="button"
             className="nv-toggle"
             onClick={() => setMenuOpen((v) => !v)}
@@ -203,7 +239,7 @@ export default function SiteNav() {
         <div className="nv-progress" aria-hidden="true"><i /></div>
       </div>
 
-      <div id="nv-panel" className="nv-panel" aria-hidden={!menuOpen}>
+      <div id="nv-panel" ref={panelRef} className="nv-panel" aria-hidden={!menuOpen} inert={!menuOpen}>
         <ul>
           {LINKS.map((link, i) => (
             <li key={link.id} style={{ ["--i" as string]: i }}>

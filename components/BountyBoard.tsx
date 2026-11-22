@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
+import { prefersReducedMotion } from "@/lib/motion";
 
 type Skill = { name: string; src: string; w: number; h: number; bounty: number; role: string; note: string };
 
@@ -28,6 +29,11 @@ function Counter({ value }: { value: number }) {
   useEffect(() => {
     const a = from.current;
     if (a === value) return;
+    if (prefersReducedMotion()) {
+      from.current = value;
+      setShown(value);
+      return;
+    }
     const start = performance.now();
     let raf = 0;
     const tick = (now: number) => {
@@ -301,7 +307,7 @@ export default function BountyBoard() {
           </button>
           <span className="bb-live" aria-live="polite">{SKILLS[index].name} bounty is {fmt(bounty(index))}</span>
         </div>
-        <div className="poster-carousel-controls" aria-label="Choose a skill poster">
+        <div className="poster-carousel-controls" role="group" aria-label="Choose a skill poster">
           {SKILLS.map((poster, i) => (
             <button
               key={poster.name}
