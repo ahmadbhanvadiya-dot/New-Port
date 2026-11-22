@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import dynamic from "next/dynamic";
-import { ArrowDownRight, ArrowUpRight, Github, Linkedin, Music } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Github, Linkedin } from "lucide-react";
 import ScrollLuffy from "@/components/ScrollLuffy";
 import ScrollBackground from "@/components/ScrollBackground";
 import SoundDock from "@/components/SoundDock";
@@ -59,16 +59,6 @@ export default function Home() {
           y: 0, opacity: 1, duration: 0.85, ease: "power3.out",
           scrollTrigger: { trigger: element, start: "top 86%", once: true }
         });
-      });
-
-      gsap.utils.toArray<HTMLElement>(".project-row").forEach((row) => {
-        const art = row.querySelector(".art-symbol");
-        if (art) {
-          gsap.fromTo(art, { scale: 0.92, rotate: -1.5 }, {
-            scale: 1, rotate: 0, ease: "none",
-            scrollTrigger: { trigger: row, start: "top bottom", end: "bottom top", scrub: 0.6 }
-          });
-        }
       });
 
       gsap.to(".scroll-progress span", {
