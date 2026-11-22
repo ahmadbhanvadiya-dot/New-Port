@@ -1,5 +1,11 @@
 # https://developers.cloudflare.com/workers/static-assets/headers
 # https://opennext.js.org/cloudflare/caching#static-assets-caching
+# These apply to files served directly from Workers static assets (JS, CSS, images, frames).
+# Headers for HTML and metadata routes are set in next.config.ts (they come from the Worker).
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
 /_next/static/*
   Cache-Control: public,max-age=31536000,immutable
 
