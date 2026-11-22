@@ -2,8 +2,9 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Float, Sparkles } from "@react-three/drei";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import SceneErrorBoundary from "@/components/SceneErrorBoundary";
 
 const moods = [
   { crew: "straw", skull: "#f6efdc", shadow: "#17202b", accent: "#d7a943", ribbon: "#c93636", label: "STRAW HAT PIRATES" },
@@ -127,7 +128,12 @@ function JollyRoger({ mood, hovering, pointerTarget }: { mood: number; hovering:
       {[0,1,2,3,4,5,6,7].map(i => <mesh key={i} position={[Math.cos(i*Math.PI/4)*1.52, Math.sin(i*Math.PI/4)*1.52, 0]} rotation={[0,0,i*Math.PI/4]}><coneGeometry args={[0.045,0.12,4]} /><meshStandardMaterial color={palette.accent} emissive={palette.accent} emissiveIntensity={0.18} /></mesh>)}
     </group>
     <Sparkles count={hovering ? 92 : 42} scale={4} size={hovering ? 2.5 : 1.6} speed={hovering ? 1 : 0.28} color={palette.accent} />
-    <Environment preset="sunset" />
+    {/* The HDR is fetched from a CDN: if it is slow, the skull still renders; if it fails, only reflections are lost. */}
+    <SceneErrorBoundary label="environment" fallback={null}>
+      <Suspense fallback={null}>
+        <Environment preset="sunset" />
+      </Suspense>
+    </SceneErrorBoundary>
   </group>;
 }
 

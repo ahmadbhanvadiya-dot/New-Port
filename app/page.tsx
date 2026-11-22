@@ -12,6 +12,7 @@ import KineticLane from "@/components/KineticLane";
 import ShipScene from "@/components/ShipScene";
 import BountyBoard from "@/components/BountyBoard";
 import IslandSelector from "@/components/IslandSelector";
+import SceneErrorBoundary from "@/components/SceneErrorBoundary";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -160,7 +161,9 @@ export default function Home() {
           </div>
           <div className="hero-visual" aria-label="Interactive Jolly Roger with a Grand Line compass">
             <div className="visual-label visual-label-top"><span>GRAND LINE / 001</span><span>JOLLY ROGER FIELD NOTES</span></div>
-            <OrbScene onCrewChange={setActiveCrew} />
+            <SceneErrorBoundary label="3D skull" fallback={<div className="scene-fallback" aria-hidden="true" />}>
+              <OrbScene onCrewChange={setActiveCrew} />
+            </SceneErrorBoundary>
             <div className="visual-coordinates">LOG POSE: ACTIVE<br />CREW: {activeCrew}</div>
             <div className="visual-label visual-label-bottom"><span>THE GRAND LINE<br />CALLS</span><span className="visual-plus">↗</span></div>
           </div>
