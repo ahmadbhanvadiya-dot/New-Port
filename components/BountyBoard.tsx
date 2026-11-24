@@ -243,6 +243,9 @@ export default function BountyBoard() {
                     <div className="bb-flip" data-flipped={active && flipped ? "true" : "false"}>
                       <div className="bb-face bb-front">
                         {/* lazy: the lab section is far below the fold, and without it React preloads all six posters in <head> */}
+                        {/* Plain <img> on purpose: the posters are already sized WebP files, and next/image on
+                            Cloudflare would route them through the (billed) Images binding for no gain. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={skill.src} width={skill.w} height={skill.h} loading="lazy" decoding="async" alt={`${skill.name} skill wanted poster`} draggable={false} />
                         <span className="bb-dim" aria-hidden="true" />
                         <span className="bb-glare" aria-hidden="true" />
