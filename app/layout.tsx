@@ -1,6 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { DM_Mono, DM_Sans, Space_Grotesk } from "next/font/google";
 import { SITE, SITE_URL } from "@/lib/site";
 import "./globals.css";
+
+// Self-hosted at build time by next/font (no request to Google at runtime, no render-blocking
+// @import). Same families and weights as before; exposed as CSS variables used in globals.css.
+const dmMono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], display: "swap", variable: "--nf-dm-mono" });
+const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap", variable: "--nf-dm-sans" });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap", variable: "--nf-space-grotesk" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -43,7 +50,7 @@ const personJsonLd = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${dmMono.variable} ${dmSans.variable} ${spaceGrotesk.variable}`}>
       <body>
         <script
           type="application/ld+json"

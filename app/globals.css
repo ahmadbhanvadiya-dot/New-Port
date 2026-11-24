@@ -1,7 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-:root{--ink:#141313;--paper:#f2f0eb;--muted:#8d8a85;--line:rgba(20,19,19,.18);--acid:#d9ff43;--violet:#8b5cf6;--mono:"DM Mono",monospace;--sans:"DM Sans",sans-serif;--display:"Space Grotesk",sans-serif}
+:root{--ink:#141313;--paper:#f2f0eb;--muted:#8d8a85;--line:rgba(20,19,19,.18);--acid:#d9ff43;--violet:#8b5cf6;--mono:var(--nf-dm-mono),"DM Mono",monospace;--sans:var(--nf-dm-sans),"DM Sans",sans-serif;--display:var(--nf-space-grotesk),"Space Grotesk",sans-serif}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;background:var(--paper)}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
@@ -553,7 +552,7 @@ button{font:inherit}
 @media(prefers-reduced-motion:reduce){.sculpture-canvas.is-hovering:after{animation:none}}
 
 /* V22 — Grand Line visual identity: parchment, ink, brass and sea-glass. */
-:root{--ink:#17202a;--paper:#f1e8d2;--muted:#766d5e;--line:rgba(35,43,52,.22);--acid:#e9bf57;--violet:#b52d32;--display:"Space Grotesk",sans-serif}
+:root{--ink:#17202a;--paper:#f1e8d2;--muted:#766d5e;--line:rgba(35,43,52,.22);--acid:#e9bf57;--violet:#b52d32;--display:var(--nf-space-grotesk),"Space Grotesk",sans-serif}
 html,body{background:var(--paper);color:var(--ink)}
 ::selection{background:#b52d32;color:#fff8e8}
 body{background-image:radial-gradient(ellipse at 12% 8%,rgba(255,255,255,.6),transparent 32%),radial-gradient(ellipse at 88% 55%,rgba(208,174,102,.12),transparent 30%),repeating-linear-gradient(0deg,transparent 0 42px,rgba(66,56,41,.025) 43px 44px)}

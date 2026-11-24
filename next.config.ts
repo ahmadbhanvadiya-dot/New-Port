@@ -7,18 +7,16 @@ import type { NextConfig } from "next";
  *
  * - 'unsafe-inline' scripts: Next inlines its hydration data; nonces would force every
  *   page to render dynamically instead of being prerendered.
- * - fonts.googleapis.com / fonts.gstatic.com: the @import at the top of globals.css.
- * - raw.githack.com (redirects to raw.githubusercontent.com): drei's
- *   <Environment preset="sunset"> HDR, until it is self-hosted.
+ * - Fonts (next/font) and the HDR (public/hdri) are self-hosted, so they need only 'self'.
  * - open.spotify.com: the music player embed.
  */
 const csp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com data:",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self' data:",
   "img-src 'self' data: blob:",
-  "connect-src 'self' https://raw.githack.com https://raw.githubusercontent.com",
+  "connect-src 'self'",
   "frame-src https://open.spotify.com",
   "worker-src 'self' blob:",
   "media-src 'self'",

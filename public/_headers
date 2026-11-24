@@ -14,3 +14,7 @@
 
 /frames-m/*
   Cache-Control: public,max-age=31536000,immutable
+
+# Not content-hashed: give a replacement HDR a new file name.
+/hdri/*
+  Cache-Control: public,max-age=31536000,immutable
